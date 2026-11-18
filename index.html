@@ -491,6 +491,12 @@
       <div class="hint-text" id="hand-hint">Tap a card to add it to your word · drag to rearrange</div>
     </div>
     <div id="human-controls">
+      <div class="action-row" id="main-actions">
+        <button class="btn btn-teal" onclick="initiatePlay()" id="play-btn" style="flex:1;min-width:130px;">Play word</button>
+        <button class="btn btn-gray btn-sm" onclick="recallWord()">↩ Recall</button>
+        <button class="btn btn-gray btn-sm" onclick="shuffleHand()">⤮ Shuffle</button>
+        <button class="btn btn-red btn-sm" onclick="cantPlay()" id="cant-play-btn">🚫 Can't play</button>
+      </div>
       <div style="margin-bottom:10px;">
         <div class="board-label" style="margin-bottom:7px;">Play type</div>
         <div class="play-type-row" id="play-type-row">
@@ -503,12 +509,6 @@
           <button class="play-type-btn" data-type="both" onclick="setPlayType('both')">Both wrap</button>
         </div>
 
-      </div>
-      <div class="action-row" id="main-actions">
-        <button class="btn btn-teal" onclick="initiatePlay()" id="play-btn" style="flex:1;min-width:130px;">Play word</button>
-        <button class="btn btn-gray btn-sm" onclick="recallWord()">↩ Recall</button>
-        <button class="btn btn-gray btn-sm" onclick="shuffleHand()">⤮ Shuffle</button>
-        <button class="btn btn-red btn-sm" onclick="cantPlay()" id="cant-play-btn">🚫 Can't play</button>
       </div>
     </div>
     <div class="turn-log" id="turn-log"><p id="first-log"></p></div>
