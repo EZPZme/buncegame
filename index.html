@@ -1012,7 +1012,7 @@ function tlabel(t){return `<div class="tlabel">${t}</div>`;}
 function tgrid(cols,rows,cells){return `<div class="tg" style="--cols:${cols};--rows:${rows};--c:${cols<=6?42:28}px">${cells.map(([r,c,cls,l,st])=>`<div style="grid-row:${r};grid-column:${c}">${tcard(cls,l,st)}</div>`).join("")}</div>`;}
 function tkey(){return `<div class="tkey"><span><i class="k-new"></i>your cards</span><span><i class="k-cross"></i>table letter you use</span><span><i class="k-dim"></i>doesn't score</span></div>`;}
 function twild(cls,l){return `<div class="twild">${tcard(cls,"*")}<span class="tbadge">${l}</span></div>`;}
-function tvals(){const g=[[10,"NRT",TP2],[8,"DHLS",TP1],[6,"BMP*",TP3],[5,"AEIOU",TP4],[4,"CFGW",TP2],[2,"JKVY",TP1],[1,"QXZ",TP3]];
+function tvals(){const g=[[10,"NRT",TP2],[8,"DHLS",TP2],[6,"BMP*",TP2],[5,"AEIOU",TP2],[4,"CFGW",TP2],[2,"JKVY",TP2],[1,"QXZ",TP2]]; // one complete deck (red)
   return `<div class="tvals">${g.map(([v,ls,cls])=>`<div class="tval-row"><span class="tval-n">${v}</span>${ls.split("").map(l=>tcard(cls,l,"sm")).join("")}</div>`).join("")}</div>`;}
 function trounds(){return `<div class="trounds">${[7,6,5,4,3,2].map((n,i)=>`<div class="tround"><span class="tround-n">Round ${i+1}</span><span class="tround-cards">${Array.from({length:n},()=>tback(TP1,"xs")).join("")}</span><span class="tround-c">${n} cards</span></div>`).join("")}</div>`;}
 
