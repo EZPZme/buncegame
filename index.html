@@ -742,7 +742,7 @@ function findBestPlay(hand, tableWord, aiLevel) {
           avail2.splice(idx, 1);
         }
         if (!ok) continue;
-        const sc = aiCalcScore(used2, avail2);
+        const sc = aiCalcScore(used2, avail2) + ((boardCards[ti] && boardCards[ti].value) || 0); // crossed table letter counts, as for players
         if (sc > bestScore) {
           bestScore = sc;
           best = { type:'crossword', word, pivotTableIdx:ti, pivotLetter:pivot, pivotWordIdx:wi, handUsed:used2, handUnused:avail2, score:sc };
@@ -756,6 +756,9 @@ function findBestPlay(hand, tableWord, aiLevel) {
 
 // ── GAME STATE ───────────────────────────────────────────────────────────────
 let aiRejectedWords=new Set(),aiHandCardsInPlay=[];
+// AI turn pacing (milliseconds)
+const AI_THINK_MS=1500, AI_CARD_MS=600, AI_PAUSE_MS=1200;
+function aiRevealMs(n){return AI_CARD_MS*(n+0.5)+AI_PAUSE_MS;}
 const COLORS=["card-gold","card-red","card-purple","card-teal"];
 const COLOR_HEX=["#FFB237","#FB3F26","#6E48A5","#1EBCAE"];
 const VOWELS=["A","E","I","O","U"];
@@ -853,7 +856,8 @@ function doAITurn(){
       scores[currentPlayerIdx]-=pen;
       log(`${players[currentPlayerIdx].name} (AI) can't play — lost ${pen} pts.`);
       pendingNewBoard=boardWord;pendingNewBoardCards=boardCards;pendingExtraWord="";
-      finalizeTurn(currentPlayerIdx);renderScores();
+      renderScores();toast(`${players[currentPlayerIdx].name} (AI) can't play — loses ${pen} pts`);
+      setTimeout(()=>{finalizeTurn(currentPlayerIdx);renderScores();},AI_PAUSE_MS*2);
       return;
     }
     if(play.type==="word"){
@@ -867,7 +871,7 @@ function doAITurn(){
       currentHand=[...play.unused];aiHandCardsInPlay=play.used;
       log(`${players[currentPlayerIdx].name} (AI) plays "${play.word}" (+${play.score} pts)`);
       showAICards(play.used);
-      setTimeout(()=>showChallengeBanner(),900);
+      setTimeout(()=>showChallengeBanner(),aiRevealMs(play.used.length));
     } else if(play.type==="crossword"){
       // Build full card sequence for the crossword word
       const tableCard=boardCards[play.pivotTableIdx];
@@ -885,11 +889,12 @@ function doAITurn(){
       pendingNewBoardCards=fullSeq;
       pendingExtraWord="";pendingMainWord=play.word;
       currentHand=[...play.handUnused];aiHandCardsInPlay=play.handUsed;
-      log(`${players[currentPlayerIdx].name} (AI) crosswords "${play.word}" (+${play.score} pts)`);
+      log(`${players[currentPlayerIdx].name} (AI) crosses "${play.word}" through the ${play.pivotLetter} in ${boardWord.join("")} (+${play.score} pts)`);
+      crosswordPivotIdx=play.pivotTableIdx;renderBoard();
       showAICards(fullSeq);
-      setTimeout(()=>showChallengeBanner(),900);
+      setTimeout(()=>showChallengeBanner(),aiRevealMs(fullSeq.length));
     }
-  },600);
+  },AI_THINK_MS);
 }
 
 function showAICards(cards){
@@ -1214,6 +1219,32 @@ function newsletterChoice(signUp){
   document.getElementById("newsletter-modal").classList.remove("visible");
   _startGameOriginal();
 }
+</script>
+<script>
+// Show the AI's word being built one card at a time: each card leaves its hand and lands in the word.
+showAICards=function(cards){
+  const slots=document.getElementById("word-slots"), tray=document.getElementById("word-tray");
+  tray.classList.add("has-cards");
+  const finalHand=currentHand.slice();
+  const pendingHand=cards.filter(c=>!boardCards.includes(c));
+  let shown=0;
+  const draw=()=>{
+    slots.innerHTML=shown?cards.slice(0,shown).map((c,i)=>`<div class="card ${c.colorClass}${i===shown-1?" deal-in":""}${boardCards.includes(c)?" pivot-locked":""}">${cardFace(c)}</div>`).join(""):'<span class="word-empty">The AI is building its word…</span>';
+    currentHand=finalHand.concat(pendingHand);renderHand();
+    // Same running score a player sees: cards in the word − cards still in hand (+10 Bunce if none left)
+    const inWord=cards.slice(0,shown), inHand=finalHand.concat(pendingHand);
+    const sc=inWord.reduce((s,c)=>s+c.value,0)-inHand.reduce((s,c)=>s+c.value,0)+(inHand.length===0?10:0);
+    document.getElementById("word-tray-score").textContent=shown?`${sc>=0?"+":""}${sc} pts`:"";
+  };
+  // (AI crossword scores include the crossed table letter, same as a player's: see step 29)
+  draw();
+  const step=()=>{
+    if(shown>=cards.length){currentHand=finalHand;renderHand();return;}
+    const c=cards[shown++];const k=pendingHand.indexOf(c);if(k>=0)pendingHand.splice(k,1);
+    draw();setTimeout(step,AI_CARD_MS);
+  };
+  setTimeout(step,AI_CARD_MS/2);
+};
 </script>
 </body>
 </html>
