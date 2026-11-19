@@ -370,6 +370,37 @@
   .news-skip{background:transparent!important;box-shadow:none!important;border-color:transparent!important;color:rgba(255,255,255,.65);font-weight:600;}
   .news-btn{display:inline-block;margin-top:16px;text-decoration:none;font-size:13px;background:rgba(245,166,35,.22)!important;border-color:rgba(245,199,107,.55)!important;color:#fff;}
   .news-btn:hover{background:rgba(245,166,35,.34)!important;}
+
+  /* ── CLEANER GAME BOXES ── */
+  .board-area,.word-tray,.hand-area{background:rgba(0,0,0,.2);border:1px solid rgba(255,255,255,.09);border-radius:12px;padding:11px 12px 12px;margin-bottom:10px;min-height:0;box-shadow:none;}
+  .word-tray{border-style:solid;}
+  .word-tray.has-cards{border-color:rgba(245,166,35,.55);background:rgba(245,166,35,.07);}
+  .board-label,.word-tray-label{font-size:11px;font-weight:600;letter-spacing:1.2px;color:rgba(255,255,255,.55);margin-bottom:8px;}
+  .word-tray-score{font-size:13px;}
+  .board-word,.word-slots,.hand-cards{min-height:64px;}
+  .hand-cards{padding:0;}
+  .no-word,.word-empty{font-size:13px;color:rgba(255,255,255,.38);}
+  .board-hint,.cross-hint-inline,#hand-hint{display:none!important;}
+  @media (max-width: 480px){
+    .board-area,.word-tray,.hand-area{padding:9px 10px 10px;}
+    .board-word,.word-slots,.hand-cards{min-height:50px;}
+  }
+  @media (max-width: 360px){ .board-word,.word-slots,.hand-cards{min-height:42px;} }
+
+  /* ── TIMER ── */
+  .timer-setup{max-width:360px;margin:10px auto 0;background:rgba(0,0,0,.25);border-radius:10px;padding:12px;text-align:left;}
+  .timer-setup label{display:block;color:#F5C76B;font-size:14px;font-weight:600;margin-bottom:6px;}
+  .timer-setup select{display:block;width:100%;padding:12px;border-radius:8px;background:#163d27;color:#fff;border:2px solid rgba(255,255,255,.4);font-size:16px;}
+  .timer-note{font-size:12px;color:rgba(255,255,255,.6);margin-top:6px;min-height:0;}
+  .timer-note:empty{display:none;}
+  .turn-timer{display:none;align-items:center;justify-content:space-between;gap:10px;background:rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.2);border-left-width:4px;border-radius:10px;padding:7px 12px;margin-bottom:10px;}
+  .tt-who{font-size:12px;letter-spacing:.5px;color:rgba(255,255,255,.7);font-weight:600;}
+  .tt-time{font-family:Georgia,'Times New Roman',serif;font-size:20px;font-weight:700;color:#fff;font-variant-numeric:tabular-nums;}
+  .turn-timer.warn .tt-time{color:#F3B0AF;animation:ttPulse 1s ease-in-out infinite;}
+  @keyframes ttPulse{50%{opacity:.45;}}
+  .out-of-time{font-size:11px;font-weight:600;color:#F3B0AF;margin-left:6px;}
+
+  .scores-bar.scores-top{margin-bottom:10px;}
 </style>
 </head>
 <body>
@@ -415,6 +446,7 @@
           <li><strong>Scoring:</strong> <span class="q-plus">+</span> cards in your word (including table letters it uses) · <span class="q-minus">−</span> cards you didn't play · <span class="q-plus">+10 Bunce</span> for using all your cards · Can't play = lose your whole hand's value.</li>
           <li><strong>Challenges:</strong> opponents tap Challenge or Pass. <em>Valid</em> = player gets +10 per challenger. <em>Not valid</em> = each challenger gets +10, and the player tries again.</li>
           <li><strong>Wild ✳:</strong> any letter you choose (worth 6).</li>
+          <li><strong>Timer (optional):</strong> per turn, running out = Can't play. Per game, running out = you lose.</li>
           <li><strong>Values:</strong> N R T 10 · D H L S 8 · B M P 6 · vowels 5 · C F G W 4 · J K V Y 2 · Q X Z 1</li>
         </ul>
       </div>
@@ -441,6 +473,7 @@
           <li>Add 2–4 players on the start screen. Player 1 plays the Gold deck, Player 2 Red, Player 3 Purple and Player 4 Teal. Each deck is shuffled for you.</li>
           <li>You can make Player 1 an <strong>AI opponent</strong> (Easy, Medium, Hard or Expert).</li>
           <li>Player 1 goes first. The game keeps score for you.</li>
+          <li><strong>Optional timer:</strong> per turn (30 sec to 3 min; if it runs out, it counts as Can't play) or per game (5 to 15 min each; if your clock runs out, you lose the game). The clock pauses during challenges.</li>
           <li>Use <strong>Merriam-Webster</strong> to settle challenges (there's a look-up button), or agree on another dictionary before you start.</li>
         </ul>
       </div>
@@ -556,6 +589,24 @@
         </select>
       </div>
     </div>
+    <div class="timer-setup">
+      <label for="timer-select">⏱ Timer</label>
+      <select id="timer-select">
+        <option value="none">No timer</option>
+        <optgroup label="Per turn: each player, each turn">
+          <option value="turn-30">30 seconds a turn</option>
+          <option value="turn-60">1 minute a turn</option>
+          <option value="turn-120">2 minutes a turn</option>
+          <option value="turn-180">3 minutes a turn</option>
+        </optgroup>
+        <optgroup label="Per game: each player's total time">
+          <option value="game-300">5 minutes a game</option>
+          <option value="game-600">10 minutes a game</option>
+          <option value="game-900">15 minutes a game</option>
+        </optgroup>
+      </select>
+      <div class="timer-note" id="timer-note"></div>
+    </div>
     <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:22px;">
       <button class="btn btn-gray btn-sm" onclick="addPlayer()" id="add-player-btn">+ Add player</button>
     </div>
@@ -570,6 +621,7 @@
     <p class="copyright">© 2025 Robert McConaughy. All Rights Reserved</p>
   </div>
   <div id="game-screen" class="screen">
+    <div class="scores-bar scores-top" id="scores-bar"></div>
     <div id="vowel-banner" class="vowel-banner">⚠ No vowel in opening hand — reshuffling and redealing...</div>
     <div class="ai-thinking" id="ai-thinking">
       <div class="ai-thinking-dots"><span></span><span></span><span></span></div>
@@ -584,21 +636,22 @@
         <button class="btn btn-sm" id="mw-lookup-btn" onclick="lookupChallengedWord()" style="background:rgba(255,255,255,.12);font-size:13px;">📖 Look up on Merriam-Webster</button>
       </div>
     </div>
+    <div class="turn-timer" id="turn-timer"><span class="tt-who" id="tt-who"></span><span class="tt-time" id="tt-time"></span></div>
     <div class="board-area">
-      <div class="board-label">📋 Word on table</div>
+      <div class="board-label">Word on table</div>
       <div class="board-word" id="board-word"><span class="no-word">No word yet — build the first one below</span></div>
       <div class="board-hint" id="board-hint"></div>
     </div>
     <div class="word-tray" id="word-tray">
-      <div class="word-tray-label"><span id="word-tray-title">✍️ Your word</span><span class="word-tray-score" id="word-tray-score"></span></div>
+      <div class="word-tray-label"><span id="word-tray-title">Your word</span><span class="word-tray-score" id="word-tray-score"></span></div>
       <div class="pivot-wild-bar" id="pivot-wild-bar"><span class="txt" id="pivot-wild-txt">Pivot wild = ✳</span><button class="btn btn-primary btn-sm" onclick="changePivotWild()">Change pivot letter</button></div>
       <div class="extended-preview" id="extended-preview" style="display:none;"><div class="extended-preview-label" id="extended-preview-label">Extended table word (must be valid)</div><div class="extended-row" id="extended-row"></div></div>
       <div class="cross-hint-inline" id="cross-hint-inline" style="display:none;" id="cross-hint-inline">Tap hand cards to spell your word · tap a table letter to cross through it</div>
       <div class="side-toggle" id="side-toggle" style="display:none;"><span style="font-size:11px;color:rgba(255,255,255,.6);" id="side-toggle-label">Add letters to:</span><button class="side-btn active" id="side-before" onclick="setSide('before')">◀ before</button><button class="side-btn" id="side-after" onclick="setSide('after')">after ▶</button></div>
-      <div class="word-slots" id="word-slots"><span class="word-empty">Tap cards to build your word</span></div>
+      <div class="word-slots" id="word-slots"><span class="word-empty">Tap your cards to spell a word</span></div>
     </div>
     <div class="hand-area">
-      <div class="board-label" id="hand-label">🂠 Your hand</div>
+      <div class="board-label" id="hand-label">Your hand</div>
       <div class="hand-cards" id="hand-cards"></div>
       <div class="hint-text" id="hand-hint">Tap a card to add it to your word · drag to rearrange</div>
     </div>
@@ -628,7 +681,6 @@
         <div class="round-pills" id="round-pills"></div>
         <div class="current-player-badge" id="current-player-badge">Player 1</div>
       </div>
-      <div class="scores-bar" id="scores-bar"></div>
     </div>
     <button class="btn btn-sm quick-rules-link" onclick="document.getElementById('quick-rules-modal').classList.add('visible')">⚡ Quick rules</button>
     <p class="copyright">© 2025 Robert McConaughy. All Rights Reserved</p>
@@ -759,6 +811,7 @@ let aiRejectedWords=new Set(),aiHandCardsInPlay=[];
 // AI turn pacing (milliseconds)
 const AI_THINK_MS=1500, AI_CARD_MS=600, AI_PAUSE_MS=1200;
 function aiRevealMs(n){return AI_CARD_MS*(n+0.5)+AI_PAUSE_MS;}
+let redealPending=false; // true while the "no vowel" redeal is waiting to happen
 const COLORS=["card-gold","card-red","card-purple","card-teal"];
 const COLOR_HEX=["#FFB237","#FB3F26","#6E48A5","#1EBCAE"];
 const VOWELS=["A","E","I","O","U"];
@@ -787,15 +840,15 @@ function setAILevel(n){
   if(sel)sel.value=n;
 }
 
-function startGame(){const rows=document.getElementById("player-setup").querySelectorAll(".player-row");const aiOn=document.getElementById("ai-checkbox").checked;players=[];aiPlayerIndices=new Set();rows.forEach((r,i)=>{const name=r.querySelector("input").value.trim()||`Player ${i+1}`;players.push({name,colorClass:COLORS[i],colorHex:COLOR_HEX[i],deck:makeDeck(COLORS[i]),deckIdx:0});});if(aiOn){aiPlayerIndices.add(0);const sel=document.getElementById('ai-level-select');aiPlayerLevel=sel?parseInt(sel.value):1;}else{aiPlayerLevel=1;}scores=players.map(()=>0);roundsPlayed=players.map(()=>0);currentRound=0;currentPlayerIdx=0;boardWord=[];boardCards=[];wildAssignment={};playType="first";showScreen("game-screen");document.getElementById("first-log").textContent=`Game started — ${players[0].name} goes first! 🎲`;updateUI();drawHand(true);}
+function startGame(){const rows=document.getElementById("player-setup").querySelectorAll(".player-row");const aiOn=document.getElementById("ai-checkbox").checked;players=[];aiPlayerIndices=new Set();rows.forEach((r,i)=>{const name=r.querySelector("input").value.trim()||`Player ${i+1}`;players.push({name,colorClass:COLORS[i],colorHex:COLOR_HEX[i],deck:makeDeck(COLORS[i]),deckIdx:0});});if(aiOn){aiPlayerIndices.add(0);const sel=document.getElementById('ai-level-select');aiPlayerLevel=sel?parseInt(sel.value):1;}else{aiPlayerLevel=1;}scores=players.map(()=>0);initTimers();roundsPlayed=players.map(()=>0);currentRound=0;currentPlayerIdx=0;boardWord=[];boardCards=[];wildAssignment={};playType="first";showScreen("game-screen");document.getElementById("turn-log").innerHTML='<p id="first-log"></p>';document.getElementById("first-log").textContent=`Game started — ${players[0].name} goes first! 🎲`;updateUI();drawHand(true);}
 function showScreen(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));document.getElementById(id).classList.add("active");}
 function renderRoundPills(){document.getElementById("round-pills").innerHTML=ROUND_SIZES.map((sz,i)=>{const cls=i===currentRound?"active":i<currentRound?"done":"";return `<div class="round-pill ${cls}">${sz}</div>`;}).join("");}
 function updateUI(){renderRoundPills();const p=players[currentPlayerIdx];const b=document.getElementById("current-player-badge");const isAI=isCurrentPlayerAI();b.textContent=isAI?`${p.name} 🤖`:`${p.name}'s turn`;b.style.background=p.colorHex;
   // Update hand and word labels with player name
   const hl=document.getElementById("hand-label");
-  if(hl)hl.textContent=`🂠 ${p.name}'s hand`;
+  if(hl)hl.textContent=`${p.name}'s hand`;
   const wt=document.getElementById("word-tray-title");
-  if(wt)wt.textContent=`✍️ ${p.name}'s word`;
+  if(wt)wt.textContent=`${p.name}'s word`;
   renderScores();renderBoard();renderHand();renderWordTray();updatePlayTypeButtons();document.getElementById("human-controls").style.display=isAI?"none":"block";document.getElementById("hand-hint").textContent=isAI?`The AI (${p.name}) is choosing a play...`:`Tap a card to add it to ${p.name}'s word · drag to rearrange`;if(isAI)setTimeout(doAITurn,700);}
 function renderScores(bumpIdx){document.getElementById("scores-bar").innerHTML=players.map((p,i)=>`<div class="score-chip ${i===currentPlayerIdx?"is-turn":""}" style="background:${p.colorHex}"><div class="sname">${p.name}${aiPlayerIndices.has(i)?" 🤖":""}</div><div class="pts ${i===bumpIdx?"bump":""}">${scores[i]}</div></div>`).join("");}
 function getCardLetter(c){return c.isWild?(wildAssignment[c.id]||null):c.letter;}
@@ -814,10 +867,10 @@ function isExtend(){return (playType==="extend-end"||playType==="extend-start")&
 function isWrap(){return (playType==="prefix"||playType==="suffix"||playType==="both")&&boardWord.length>0;}
 function updatePivotWildBar(){const bar=document.getElementById("pivot-wild-bar");const isCross=playType==="crossword"&&boardWord.length>0;if(isCross&&crosswordPivotIdx!==null&&boardCards[crosswordPivotIdx]&&boardCards[crosswordPivotIdx].isWild){const a=wildAssignment[boardCards[crosswordPivotIdx].id];document.getElementById("pivot-wild-txt").textContent=a?`Pivot wild is set to "${a}"`:"Pivot is a wild — set its letter";bar.classList.add("visible");}else bar.classList.remove("visible");}
 function renderWordTray(){updatePivotWildBar();const slots=document.getElementById("word-slots");const tray=document.getElementById("word-tray");const sideToggle=document.getElementById("side-toggle");const title=document.getElementById("word-tray-title");const extPreview=document.getElementById("extended-preview");const crossHintInline=document.getElementById("cross-hint-inline");const isCross=playType==="crossword"&&boardWord.length>0;const ext=isExtend();const wrap=isWrap();extPreview.style.display="none";crossHintInline.style.display="none";
-  if(ext){title.textContent="✍️ Perpendicular word";if(!extendCard){sideToggle.style.display="none";slots.innerHTML=`<span class="word-empty">Tap one card to add to the ${playType==="extend-end"?"END":"START"} of the table word</span>`;tray.classList.remove("has-cards");document.getElementById("word-tray-score").textContent="";return;}extPreview.style.display="block";const extLetter=getCardLetter(extendCard)||"✳";const tableStr=boardWord.join("");const extendedWord=playType==="extend-end"?tableStr+extLetter:extLetter+tableStr;document.getElementById("extended-preview-label").textContent=`Extended table word: "${extendedWord}" (challengeable)`;let extHtml="";const seq=playType==="extend-end"?[...boardCards,extendCard]:[extendCard,...boardCards];seq.forEach(c=>{extHtml+=`<div class="card small ${c.colorClass}${c===extendCard?" pivot-locked":""}">${cardFace(c)}</div>`;});document.getElementById("extended-row").innerHTML=extHtml;sideToggle.style.display="flex";document.getElementById("side-toggle-label").textContent="Perpendicular word — add to:";let html="";wordBefore.forEach((c,i)=>{html+=`<div class="card ${c.colorClass}" onclick="removeFromCross('before',${i})">${cardFace(c)}</div>`;});html+=`<div class="card ${extendCard.colorClass} pivot-locked">${cardFace(extendCard)}</div>`;wordAfter.forEach((c,i)=>{html+=`<div class="card ${c.colorClass}" onclick="removeFromCross('after',${i})">${cardFace(c)}</div>`;});slots.innerHTML=html;tray.classList.add("has-cards");const scored=[...wordBefore,extendCard,...wordAfter];const sc=scored.reduce((s,c)=>s+c.value,0)-currentHand.reduce((s,c)=>s+c.value,0)+(currentHand.length===0?10:0);document.getElementById("word-tray-score").textContent=`${sc>=0?"+":""}${sc} pts`;return;}
-  if(wrap){title.textContent=playType==="prefix"?"✍️ Prefix wrap":playType==="suffix"?"✍️ Suffix wrap":"✍️ Both-ends wrap";if(playType==="both"){sideToggle.style.display="flex";document.getElementById("side-toggle-label").textContent="Add letters to:";}else{sideToggle.style.display="none";}let html="";wordBefore.forEach((c,i)=>{html+=`<div class="card ${c.colorClass}" onclick="removeFromCross('before',${i})">${cardFace(c)}</div>`;});boardCards.forEach(c=>{html+=`<div class="card ${c.colorClass} wrap-locked">${cardFace(c)}</div>`;});wordAfter.forEach((c,i)=>{html+=`<div class="card ${c.colorClass}" onclick="removeFromCross('after',${i})">${cardFace(c)}</div>`;});slots.innerHTML=html;tray.classList.add("has-cards");const scored=[...wordBefore,...boardCards,...wordAfter];const sc=scored.reduce((s,c)=>s+c.value,0)-currentHand.reduce((s,c)=>s+c.value,0)+(currentHand.length===0?10:0);document.getElementById("word-tray-score").textContent=`${sc>=0?"+":""}${sc} pts`;return;}
-  if(isCross){title.textContent="✍️ Crossword word";sideToggle.style.display="none";crossHintInline.style.display="block";crossHintInline.textContent=`Tap ${players[currentPlayerIdx].name}'s cards · tap a table letter to cross through it`;if(crossSeq.length===0){slots.innerHTML='<span class="word-empty">Tap hand cards to spell — tap a table letter to cross through it</span>';tray.classList.remove("has-cards");document.getElementById("word-tray-score").textContent="";return;}let html="";crossSeq.forEach((e,i)=>{const locked=e.source==="board";html+=`<div class="card ${e.card.colorClass}${locked?" pivot-locked":""}${locked&&e.card.isWild?" pivot-wild":""}" onclick="${locked&&e.card.isWild?"changePivotWild()":locked?`removeCrossSeq(${i})`:`removeCrossSeq(${i})`}">${cardFace(e.card)}</div>`;});slots.innerHTML=html;tray.classList.add("has-cards");const scored=crossSeq.map(e=>e.card);const sc=scored.reduce((s,c)=>s+c.value,0)-currentHand.reduce((s,c)=>s+c.value,0)+(currentHand.length===0?10:0);document.getElementById("word-tray-score").textContent=`${sc>=0?"+":""}${sc} pts`;return;}
-  sideToggle.style.display="none";title.textContent=`✍️ ${players[currentPlayerIdx].name}'s word`;if(!wordTray.length){slots.innerHTML=`<span class="word-empty">Tap cards to build ${players[currentPlayerIdx].name}'s word</span>`;tray.classList.remove("has-cards");document.getElementById("word-tray-score").textContent="";return;}tray.classList.add("has-cards");slots.innerHTML=wordTray.map((c,i)=>`<div class="card ${c.colorClass}" onclick="removeFromWord(${i})">${cardFace(c)}</div>`).join("");const sc=wordTray.reduce((s,c)=>s+c.value,0)-currentHand.reduce((s,c)=>s+c.value,0)+(currentHand.length===0?10:0);document.getElementById("word-tray-score").textContent=`${sc>=0?"+":""}${sc} pts`;}
+  if(ext){title.textContent="Perpendicular word";if(!extendCard){sideToggle.style.display="none";slots.innerHTML=`<span class="word-empty">Tap one card to add to the ${playType==="extend-end"?"END":"START"} of the table word</span>`;tray.classList.remove("has-cards");document.getElementById("word-tray-score").textContent="";return;}extPreview.style.display="block";const extLetter=getCardLetter(extendCard)||"✳";const tableStr=boardWord.join("");const extendedWord=playType==="extend-end"?tableStr+extLetter:extLetter+tableStr;document.getElementById("extended-preview-label").textContent=`Extended table word: "${extendedWord}" (challengeable)`;let extHtml="";const seq=playType==="extend-end"?[...boardCards,extendCard]:[extendCard,...boardCards];seq.forEach(c=>{extHtml+=`<div class="card small ${c.colorClass}${c===extendCard?" pivot-locked":""}">${cardFace(c)}</div>`;});document.getElementById("extended-row").innerHTML=extHtml;sideToggle.style.display="flex";document.getElementById("side-toggle-label").textContent="Perpendicular word — add to:";let html="";wordBefore.forEach((c,i)=>{html+=`<div class="card ${c.colorClass}" onclick="removeFromCross('before',${i})">${cardFace(c)}</div>`;});html+=`<div class="card ${extendCard.colorClass} pivot-locked">${cardFace(extendCard)}</div>`;wordAfter.forEach((c,i)=>{html+=`<div class="card ${c.colorClass}" onclick="removeFromCross('after',${i})">${cardFace(c)}</div>`;});slots.innerHTML=html;tray.classList.add("has-cards");const scored=[...wordBefore,extendCard,...wordAfter];const sc=scored.reduce((s,c)=>s+c.value,0)-currentHand.reduce((s,c)=>s+c.value,0)+(currentHand.length===0?10:0);document.getElementById("word-tray-score").textContent=`${sc>=0?"+":""}${sc} pts`;return;}
+  if(wrap){title.textContent=playType==="prefix"?"Prefix wrap":playType==="suffix"?"Suffix wrap":"Both-ends wrap";if(playType==="both"){sideToggle.style.display="flex";document.getElementById("side-toggle-label").textContent="Add letters to:";}else{sideToggle.style.display="none";}let html="";wordBefore.forEach((c,i)=>{html+=`<div class="card ${c.colorClass}" onclick="removeFromCross('before',${i})">${cardFace(c)}</div>`;});boardCards.forEach(c=>{html+=`<div class="card ${c.colorClass} wrap-locked">${cardFace(c)}</div>`;});wordAfter.forEach((c,i)=>{html+=`<div class="card ${c.colorClass}" onclick="removeFromCross('after',${i})">${cardFace(c)}</div>`;});slots.innerHTML=html;tray.classList.add("has-cards");const scored=[...wordBefore,...boardCards,...wordAfter];const sc=scored.reduce((s,c)=>s+c.value,0)-currentHand.reduce((s,c)=>s+c.value,0)+(currentHand.length===0?10:0);document.getElementById("word-tray-score").textContent=`${sc>=0?"+":""}${sc} pts`;return;}
+  if(isCross){title.textContent="Crossword word";sideToggle.style.display="none";crossHintInline.style.display="block";crossHintInline.textContent=`Tap ${players[currentPlayerIdx].name}'s cards · tap a table letter to cross through it`;if(crossSeq.length===0){slots.innerHTML='<span class="word-empty">Tap a letter on the table, then your cards</span>';tray.classList.remove("has-cards");document.getElementById("word-tray-score").textContent="";return;}let html="";crossSeq.forEach((e,i)=>{const locked=e.source==="board";html+=`<div class="card ${e.card.colorClass}${locked?" pivot-locked":""}${locked&&e.card.isWild?" pivot-wild":""}" onclick="${locked&&e.card.isWild?"changePivotWild()":locked?`removeCrossSeq(${i})`:`removeCrossSeq(${i})`}">${cardFace(e.card)}</div>`;});slots.innerHTML=html;tray.classList.add("has-cards");const scored=crossSeq.map(e=>e.card);const sc=scored.reduce((s,c)=>s+c.value,0)-currentHand.reduce((s,c)=>s+c.value,0)+(currentHand.length===0?10:0);document.getElementById("word-tray-score").textContent=`${sc>=0?"+":""}${sc} pts`;return;}
+  sideToggle.style.display="none";title.textContent=`${players[currentPlayerIdx].name}'s word`;if(!wordTray.length){slots.innerHTML=`<span class="word-empty">Tap your cards to spell a word</span>`;tray.classList.remove("has-cards");document.getElementById("word-tray-score").textContent="";return;}tray.classList.add("has-cards");slots.innerHTML=wordTray.map((c,i)=>`<div class="card ${c.colorClass}" onclick="removeFromWord(${i})">${cardFace(c)}</div>`).join("");const sc=wordTray.reduce((s,c)=>s+c.value,0)-currentHand.reduce((s,c)=>s+c.value,0)+(currentHand.length===0?10:0);document.getElementById("word-tray-score").textContent=`${sc>=0?"+":""}${sc} pts`;}
 function setSide(s){crosswordSide=s;document.getElementById("side-before").classList.toggle("active",s==="before");document.getElementById("side-after").classList.toggle("active",s==="after");}
 function addToWord(handIdx){if(challengeMode||isCurrentPlayerAI())return;if(isExtend()){if(!extendCard){extendCard=currentHand.splice(handIdx,1)[0];crosswordSide="before";renderHand();renderBoard();renderWordTray();return;}const card=currentHand.splice(handIdx,1)[0];if(crosswordSide==="before")wordBefore.push(card);else wordAfter.push(card);renderHand();renderWordTray();return;}if(isWrap()){const card=currentHand.splice(handIdx,1)[0];let side=crosswordSide;if(playType==="prefix")side="before";if(playType==="suffix")side="after";if(side==="before")wordBefore.push(card);else wordAfter.push(card);renderHand();renderWordTray();return;}if(playType==="crossword"&&boardWord.length>0){const card=currentHand.splice(handIdx,1)[0];crossSeq.push({card,source:"hand"});renderHand();renderWordTray();return;}const card=currentHand.splice(handIdx,1)[0];wordTray.push(card);renderHand();renderWordTray();}
 function removeFromWord(i){if(challengeMode||isCurrentPlayerAI())return;const c=wordTray.splice(i,1)[0];if(c.isWild)delete wildAssignment[c.id];currentHand.push(c);renderHand();renderWordTray();}
@@ -837,18 +890,20 @@ document.addEventListener("touchmove",e=>{if(touchDragIdx===null)return;const t=
 document.addEventListener("touchend",e=>{if(touchDragIdx===null)return;const t=e.changedTouches[0];if(touchClone){touchClone.remove();touchClone=null;}document.querySelectorAll(".card").forEach(c=>c.classList.remove("dragging","drag-over"));if(touchMoved){const el=document.elementFromPoint(t.clientX,t.clientY);const target=el&&el.closest("#hand-cards .card");if(target){const ti=parseInt(target.dataset.idx);if(!isNaN(ti)&&ti!==touchDragIdx){const m=currentHand.splice(touchDragIdx,1)[0];currentHand.splice(ti,0,m);renderHand();}}}touchDragIdx=null;touchMoved=false;},{passive:true});
 function setPlayType(t){if(isCurrentPlayerAI())return;if(t==="first"&&boardWord.length){t="crossword";}if(t!=="first"&&!boardWord.length){toast("Play the first word before using that move");return;}recallWord();playType=t;crosswordPivotIdx=null;wrapPivotIdx=null;wrapAddedIndices=[];wordBefore=[];wordAfter=[];crossSeq=[];crosswordSide="before";extendCard=null;document.getElementById("word-tray").style.display="block";document.getElementById("main-actions").style.display="flex";document.getElementById("play-btn").textContent="Play word";const hint=document.getElementById("hand-hint");if(t==="crossword")hint.textContent=`Spell ${players[currentPlayerIdx].name}'s word · tap a table letter to cross through it`;else if(t==="extend-end")hint.textContent=`① Tap one card to add to the END · ② build ${players[currentPlayerIdx].name}'s perpendicular word`;else if(t==="extend-start")hint.textContent=`① Tap one card to add to the START · ② build ${players[currentPlayerIdx].name}'s perpendicular word`;else if(t==="prefix"){crosswordSide="before";hint.textContent="Add letters to the START of the table word";}else if(t==="suffix"){crosswordSide="after";hint.textContent="Add letters to the END of the table word";}else if(t==="both"){crosswordSide="before";hint.textContent=`Pick a side, then tap ${players[currentPlayerIdx].name}'s cards to wrap both ends`;}else if(t==="UNUSED")hint.textContent="ove, then press Play wrap + cross";else hint.textContent=`Tap a card to add it to ${players[currentPlayerIdx].name}'s word · drag to rearrange`;updatePlayTypeButtons();renderBoard();renderWordTray();}
 function updatePlayTypeButtons(){document.querySelectorAll("#play-type-row .play-type-btn").forEach(btn=>{const t=btn.dataset.type;btn.classList.toggle("active",t===playType);btn.classList.toggle("disabled",t!=="first"&&!boardWord.length);});{const sec=document.getElementById("play-type-section");if(sec)sec.style.display=boardWord.length?"":"none";}if(!boardWord.length)playType="first";}
-function drawHand(deal){aiRejectedWords.clear();aiHandCardsInPlay=[];const p=players[currentPlayerIdx],size=ROUND_SIZES[currentRound];currentHand=[];wordTray=[];wordBefore=[];wordAfter=[];crossSeq=[];extendCard=null;crosswordPivotIdx=null;wrapPivotIdx=null;wrapAddedIndices=[];Object.keys(wildAssignment).forEach(k=>{if(!boardCards.find(c=>c.id===k))delete wildAssignment[k];});for(let i=0;i<size;i++){if(p.deckIdx<p.deck.length)currentHand.push(p.deck[p.deckIdx++]);}checkVowel();renderBoard();renderHand(deal);renderWordTray();{const wi=document.getElementById("wrap-input");if(wi)wi.value="";}}
-function checkVowel(){const isFirst=currentRound===0&&currentPlayerIdx===0&&roundsPlayed.every(r=>r===0)&&!boardWord.length;const hasV=currentHand.some(c=>VOWELS.includes(c.letter)||c.isWild);const banner=document.getElementById("vowel-banner");if(!hasV&&isFirst){banner.classList.add("visible");setTimeout(()=>{banner.classList.remove("visible");const p=players[currentPlayerIdx];const rem=p.deck.slice(p.deckIdx);shuffle(rem);p.deck=[...p.deck.slice(0,p.deckIdx),...rem];drawHand(true);},2000);}else banner.classList.remove("visible");}
+function drawHand(deal){startTurnClock();aiRejectedWords.clear();aiHandCardsInPlay=[];const p=players[currentPlayerIdx],size=ROUND_SIZES[currentRound];currentHand=[];wordTray=[];wordBefore=[];wordAfter=[];crossSeq=[];extendCard=null;crosswordPivotIdx=null;wrapPivotIdx=null;wrapAddedIndices=[];Object.keys(wildAssignment).forEach(k=>{if(!boardCards.find(c=>c.id===k))delete wildAssignment[k];});for(let i=0;i<size;i++){if(p.deckIdx<p.deck.length)currentHand.push(p.deck[p.deckIdx++]);}checkVowel();renderBoard();renderHand(deal);renderWordTray();{const wi=document.getElementById("wrap-input");if(wi)wi.value="";}}
+function checkVowel(){const isFirst=currentRound===0&&currentPlayerIdx===0&&roundsPlayed.every(r=>r===0)&&!boardWord.length;const hasV=currentHand.some(c=>VOWELS.includes(c.letter)||c.isWild);const banner=document.getElementById("vowel-banner");if(!hasV&&isFirst){redealPending=true;banner.classList.add("visible");setTimeout(()=>{redealPending=false;banner.classList.remove("visible");const p=players[currentPlayerIdx];p.deckIdx=Math.max(0,p.deckIdx-ROUND_SIZES[currentRound]);const rem=p.deck.slice(p.deckIdx);shuffle(rem);p.deck=[...p.deck.slice(0,p.deckIdx),...rem];drawHand(true);},2000);}else banner.classList.remove("visible");}
 function calcScore(used,unused){return used.reduce((s,c)=>s+c.value,0)-unused.reduce((s,c)=>s+c.value,0)+(unused.length===0?10:0);}
 
 // ── AI TURN ──────────────────────────────────────────────────────────────────
 function doAITurn(){
+  if(redealPending){setTimeout(doAITurn,400);return;} // wait for the no-vowel redeal
   const thinkEl=document.getElementById("ai-thinking");
   const thinkTxt=document.getElementById("ai-thinking-txt");
   thinkEl.classList.add("visible");
   const lvlNames={1:'Easy 🟢',2:'Medium 🟡',3:'Hard 🔴',4:'Expert 🟣'}; thinkTxt.textContent=`${players[currentPlayerIdx].name} is thinking... (${lvlNames[aiPlayerLevel||1]})`;
   // Slight delay so the UI updates before the search runs
   setTimeout(()=>{
+    if(redealPending){thinkEl.classList.remove("visible");setTimeout(doAITurn,400);return;}
     const lvl=aiPlayerLevel||1; const play=findBestPlay(currentHand,boardWord.length?boardWord.join(""):null,lvl);
     thinkEl.classList.remove("visible");
     if(!play){
@@ -994,9 +1049,9 @@ function renderWrapPreview(){const wrapWord=document.getElementById("wrap-input"
 function setWrapPivot(idx){if(!wrapAddedIndices.includes(idx))return;wrapPivotIdx=(wrapPivotIdx===idx)?null:idx;renderWrapPreview();}
 function matchHandToWord(letters){const avail=currentHand.map((c,i)=>({...c,hIdx:i}));const used=[];for(const ch of letters){let i=avail.findIndex(c=>!c.isWild&&c.letter===ch);if(i===-1)i=avail.findIndex(c=>c.isWild);if(i===-1)return null;used.push(avail[i]);avail.splice(i,1);}return{used,unused:avail};}
 
-function finalizeTurn(bumpIdx){boardWord=pendingNewBoard;boardCards=pendingNewBoardCards;document.getElementById("challenge-banner").classList.remove("visible");challengeMode=false;cantPlayArmed=false;clearTimeout(cantPlayTimer);document.getElementById("cant-play-btn").textContent="🚫 Can't play";crosswordPivotIdx=null;wrapPivotIdx=null;wrapAddedIndices=[];wordBefore=[];wordAfter=[];wordTray=[];crossSeq=[];extendCard=null;pendingExtraWord="";renderScores(bumpIdx);roundsPlayed[currentPlayerIdx]++;currentPlayerIdx=(currentPlayerIdx+1)%players.length;if(roundsPlayed.every(r=>r>currentRound)){currentRound++;if(currentRound>=6){setTimeout(endGame,600);return;}log(`─── Round ${currentRound+1} · ${ROUND_SIZES[currentRound]} cards each · word stays ───`);}setTimeout(()=>{updateUI();drawHand(true);setPlayType(boardWord.length?"crossword":"first");},350);}
+function finalizeTurn(bumpIdx){timerFired=true;boardWord=pendingNewBoard;boardCards=pendingNewBoardCards;document.getElementById("challenge-banner").classList.remove("visible");challengeMode=false;cantPlayArmed=false;clearTimeout(cantPlayTimer);document.getElementById("cant-play-btn").textContent="🚫 Can't play";crosswordPivotIdx=null;wrapPivotIdx=null;wrapAddedIndices=[];wordBefore=[];wordAfter=[];wordTray=[];crossSeq=[];extendCard=null;pendingExtraWord="";renderScores(bumpIdx);roundsPlayed[currentPlayerIdx]++;currentPlayerIdx=(currentPlayerIdx+1)%players.length;if(roundsPlayed.every(r=>r>currentRound)){currentRound++;if(currentRound>=6){setTimeout(endGame,600);return;}log(`─── Round ${currentRound+1} · ${ROUND_SIZES[currentRound]} cards each · word stays ───`);}setTimeout(()=>{updateUI();drawHand(true);setPlayType(boardWord.length?"crossword":"first");},350);}
 function cancelPlay(){document.getElementById("challenge-banner").classList.remove("visible");challengeMode=false;pendingScore=0;pendingNewBoard=[];pendingNewBoardCards=[];pendingExtraWord="";if(isCurrentPlayerAI()){for(const c of aiHandCardsInPlay){if(c.isWild)delete wildAssignment[c.id];currentHand.push(c);}aiHandCardsInPlay=[];}recallWord();renderHand();renderWordTray();renderBoard();if(isCurrentPlayerAI())setTimeout(doAITurn,1000);}
-function endGame(){showScreen("results-screen");const ranked=players.map((p,i)=>({...p,score:scores[i],isAI:aiPlayerIndices.has(i)})).sort((a,b)=>b.score-a.score);document.getElementById("podium").innerHTML=ranked.map((p,i)=>`<div class="result-row ${i===0?"winner":""}"><span style="font-size:21px;margin-right:12px;">${["🥇","🥈","🥉","4️⃣"][i]}</span><span style="flex:1;font-weight:600;text-align:left;">${p.name}${p.isAI?" 🤖":""}</span><span class="result-score" style="color:${p.colorHex}">${p.score}</span></div>`).join("");}
+function endGame(){showScreen("results-screen");const ranked=players.map((p,i)=>({...p,score:scores[i],isAI:aiPlayerIndices.has(i)})).sort((a,b)=>((a.outOfTime?1:0)-(b.outOfTime?1:0))||(b.score-a.score));document.getElementById("podium").innerHTML=ranked.map((p,i)=>`<div class="result-row ${i===0?"winner":""}"><span style="font-size:21px;margin-right:12px;">${["🥇","🥈","🥉","4️⃣"][i]}</span><span style="flex:1;font-weight:600;text-align:left;">${p.name}${p.isAI?" 🤖":""}${p.outOfTime?` <span class="out-of-time">⏱ out of time</span>`:""}</span><span class="result-score" style="color:${p.colorHex}">${p.score}</span></div>`).join("");}
 function lookupChallengedWord(){
   // Find the word being challenged, or fall back to the main played word
   const challenged = Object.values(challengeDecisions).find(d => d.word);
@@ -1245,6 +1300,65 @@ showAICards=function(cards){
   };
   setTimeout(step,AI_CARD_MS/2);
 };
+</script>
+<script>
+// ── TIMER ──
+let timerMode="none", timerSecs=0, turnLeft=0, gameLeft=[], timerLast=0, timerTick=null, timerFired=false;
+function readTimerChoice(){const v=(document.getElementById("timer-select")||{}).value||"none";if(v==="none")return{mode:"none",secs:0};const [m,s]=v.split("-");return{mode:m,secs:parseInt(s)};}
+function fmtClock(s){s=Math.max(0,Math.ceil(s));return Math.floor(s/60)+":"+String(s%60).padStart(2,"0");}
+function initTimers(){
+  const c=readTimerChoice();timerMode=c.mode;timerSecs=c.secs;
+  gameLeft=players.map(()=>timerSecs);players.forEach(p=>delete p.outOfTime);
+  clearInterval(timerTick);timerTick=null;timerFired=false;
+  if(timerMode!=="none"){timerLast=performance.now();timerTick=setInterval(timerStep,200);}
+  renderTimer();
+}
+function startTurnClock(){turnLeft=timerSecs;timerFired=false;timerLast=performance.now();renderTimer();}
+function timerPaused(){
+  const gs=document.getElementById("game-screen");
+  return !gs||!gs.classList.contains("active")||challengeMode||isCurrentPlayerAI()||(typeof redealPending!=="undefined"&&redealPending)||!players.length;
+}
+function timerStep(){
+  const now=performance.now(),dt=(now-timerLast)/1000;timerLast=now;
+  if(timerMode==="none"||timerPaused()||timerFired){renderTimer();return;}
+  if(timerMode==="turn"){turnLeft-=dt;if(turnLeft<=0){timerFired=true;turnLeft=0;renderTimer();turnTimeUp();return;}}
+  else{gameLeft[currentPlayerIdx]-=dt;if(gameLeft[currentPlayerIdx]<=0){timerFired=true;gameLeft[currentPlayerIdx]=0;renderTimer();gameTimeUp(currentPlayerIdx);return;}}
+  renderTimer();
+}
+function renderTimer(){
+  const el=document.getElementById("turn-timer");if(!el)return;
+  if(timerMode==="none"||!players.length||isCurrentPlayerAI()){el.style.display="none";return;}
+  const left=timerMode==="turn"?turnLeft:gameLeft[currentPlayerIdx];
+  el.style.display="flex";
+  document.getElementById("tt-who").textContent=timerMode==="turn"?`${players[currentPlayerIdx].name}'s turn`:`${players[currentPlayerIdx].name}'s game clock`;
+  document.getElementById("tt-time").textContent=(timerPaused()&&!isCurrentPlayerAI()?"⏸ ":"⏱ ")+fmtClock(left);
+  el.classList.toggle("warn",left<=10);
+  el.style.borderColor=players[currentPlayerIdx].colorHex;
+}
+function closeOpenPickers(){try{hideModal();}catch(e){}wildResolve=null;}
+function turnTimeUp(){
+  // Same as tapping Can't play: hand discarded, lose its value, table word stays
+  closeOpenPickers();recallWord();
+  const pen=currentHand.reduce((s,c)=>s+c.value,0);scores[currentPlayerIdx]-=pen;
+  log(`⏱ Time's up! ${players[currentPlayerIdx].name} can't play — lost ${pen} pts.`);
+  toast(`⏱ Time's up! ${players[currentPlayerIdx].name} loses ${pen} pts`);
+  pendingNewBoard=boardWord;pendingNewBoardCards=boardCards;pendingExtraWord="";
+  finalizeTurn(currentPlayerIdx);renderScores();
+}
+function gameTimeUp(i){
+  // Out of time on the game clock: that player loses, the game ends now
+  closeOpenPickers();recallWord();
+  players[i].outOfTime=true;clearInterval(timerTick);timerTick=null;
+  log(`⏱ ${players[i].name} ran out of time and loses the game.`);
+  toast(`⏱ ${players[i].name} ran out of time!`);
+  setTimeout(endGame,1200);
+}
+// Explain the choice on the start screen
+function updateTimerNote(){const c=readTimerChoice(),n=document.getElementById("timer-note");if(!n)return;
+  n.textContent=c.mode==="turn"?"Run out of time on your turn and it counts as Can't play.":c.mode==="game"?"Each player gets this much in total. Run out and you lose the game.":"";}
+document.getElementById("timer-select").addEventListener("change",updateTimerNote);
+// Stop the clock when leaving the game (Play again)
+const _resetGameT=resetGame;resetGame=function(){clearInterval(timerTick);timerTick=null;timerMode="none";renderTimer();_resetGameT.apply(this,arguments);};
 </script>
 </body>
 </html>
