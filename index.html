@@ -595,7 +595,7 @@ function findBestPlay(hand, tableWord, aiLevel) {
   let bestScore = -9999;
 
   for (const word of wordArr) {
-    if (word.length < 3) continue;
+    if (word.length < 3 || aiRejectedWords.has(word)) continue;
 
     if (!tableWord || tableWord.length === 0) {
       const r = aiCanSpell(word, hand);
@@ -633,6 +633,7 @@ function findBestPlay(hand, tableWord, aiLevel) {
 }
 
 // ── GAME STATE ───────────────────────────────────────────────────────────────
+let aiRejectedWords=new Set(),aiHandCardsInPlay=[];
 const COLORS=["card-gold","card-red","card-purple","card-teal"];
 const COLOR_HEX=["#FFB237","#FB3F26","#6E48A5","#1EBCAE"];
 const VOWELS=["A","E","I","O","U"];
@@ -711,7 +712,7 @@ document.addEventListener("touchmove",e=>{if(touchDragIdx===null)return;const t=
 document.addEventListener("touchend",e=>{if(touchDragIdx===null)return;const t=e.changedTouches[0];if(touchClone){touchClone.remove();touchClone=null;}document.querySelectorAll(".card").forEach(c=>c.classList.remove("dragging","drag-over"));if(touchMoved){const el=document.elementFromPoint(t.clientX,t.clientY);const target=el&&el.closest("#hand-cards .card");if(target){const ti=parseInt(target.dataset.idx);if(!isNaN(ti)&&ti!==touchDragIdx){const m=currentHand.splice(touchDragIdx,1)[0];currentHand.splice(ti,0,m);renderHand();}}}touchDragIdx=null;touchMoved=false;},{passive:true});
 function setPlayType(t){if(isCurrentPlayerAI())return;if(t!=="first"&&!boardWord.length){toast("Play the first word before using that move");return;}recallWord();playType=t;crosswordPivotIdx=null;wrapPivotIdx=null;wrapAddedIndices=[];wordBefore=[];wordAfter=[];crossSeq=[];crosswordSide="before";extendCard=null;document.getElementById("word-tray").style.display="block";document.getElementById("main-actions").style.display="flex";document.getElementById("play-btn").textContent="Play word";const hint=document.getElementById("hand-hint");if(t==="crossword")hint.textContent=`Spell ${players[currentPlayerIdx].name}'s word · tap a table letter to cross through it`;else if(t==="extend-end")hint.textContent=`① Tap one card to add to the END · ② build ${players[currentPlayerIdx].name}'s perpendicular word`;else if(t==="extend-start")hint.textContent=`① Tap one card to add to the START · ② build ${players[currentPlayerIdx].name}'s perpendicular word`;else if(t==="prefix"){crosswordSide="before";hint.textContent="Add letters to the START of the table word";}else if(t==="suffix"){crosswordSide="after";hint.textContent="Add letters to the END of the table word";}else if(t==="both"){crosswordSide="before";hint.textContent=`Pick a side, then tap ${players[currentPlayerIdx].name}'s cards to wrap both ends`;}else if(t==="UNUSED")hint.textContent="ove, then press Play wrap + cross";else hint.textContent=`Tap a card to add it to ${players[currentPlayerIdx].name}'s word · drag to rearrange`;updatePlayTypeButtons();renderBoard();renderWordTray();}
 function updatePlayTypeButtons(){document.querySelectorAll("#play-type-row .play-type-btn").forEach(btn=>{const t=btn.dataset.type;btn.classList.toggle("active",t===playType);btn.classList.toggle("disabled",t!=="first"&&!boardWord.length);});if(!boardWord.length)playType="first";}
-function drawHand(deal){const p=players[currentPlayerIdx],size=ROUND_SIZES[currentRound];currentHand=[];wordTray=[];wordBefore=[];wordAfter=[];crossSeq=[];extendCard=null;crosswordPivotIdx=null;wrapPivotIdx=null;wrapAddedIndices=[];Object.keys(wildAssignment).forEach(k=>{if(!boardCards.find(c=>c.id===k))delete wildAssignment[k];});for(let i=0;i<size;i++){if(p.deckIdx<p.deck.length)currentHand.push(p.deck[p.deckIdx++]);}checkVowel();renderBoard();renderHand(deal);renderWordTray();{const wi=document.getElementById("wrap-input");if(wi)wi.value="";}}
+function drawHand(deal){aiRejectedWords.clear();aiHandCardsInPlay=[];const p=players[currentPlayerIdx],size=ROUND_SIZES[currentRound];currentHand=[];wordTray=[];wordBefore=[];wordAfter=[];crossSeq=[];extendCard=null;crosswordPivotIdx=null;wrapPivotIdx=null;wrapAddedIndices=[];Object.keys(wildAssignment).forEach(k=>{if(!boardCards.find(c=>c.id===k))delete wildAssignment[k];});for(let i=0;i<size;i++){if(p.deckIdx<p.deck.length)currentHand.push(p.deck[p.deckIdx++]);}checkVowel();renderBoard();renderHand(deal);renderWordTray();{const wi=document.getElementById("wrap-input");if(wi)wi.value="";}}
 function checkVowel(){const isFirst=currentRound===0&&currentPlayerIdx===0&&roundsPlayed.every(r=>r===0)&&!boardWord.length;const hasV=currentHand.some(c=>VOWELS.includes(c.letter)||c.isWild);const banner=document.getElementById("vowel-banner");if(!hasV&&isFirst){banner.classList.add("visible");setTimeout(()=>{banner.classList.remove("visible");const p=players[currentPlayerIdx];const rem=p.deck.slice(p.deckIdx);shuffle(rem);p.deck=[...p.deck.slice(0,p.deckIdx),...rem];drawHand(true);},2000);}else banner.classList.remove("visible");}
 function calcScore(used,unused){return used.reduce((s,c)=>s+c.value,0)-unused.reduce((s,c)=>s+c.value,0)+(unused.length===0?10:0);}
 
@@ -741,7 +742,7 @@ function doAITurn(){
       pendingNewBoard=play.word.split("");
       pendingNewBoardCards=play.used;
       pendingExtraWord="";pendingMainWord=play.word;
-      currentHand=[...play.unused];
+      currentHand=[...play.unused];aiHandCardsInPlay=play.used;
       log(`${players[currentPlayerIdx].name} (AI) plays "${play.word}" (+${play.score} pts)`);
       showAICards(play.used);
       setTimeout(()=>showChallengeBanner(),900);
@@ -761,7 +762,7 @@ function doAITurn(){
       pendingNewBoard=play.word.split("");
       pendingNewBoardCards=fullSeq;
       pendingExtraWord="";pendingMainWord=play.word;
-      currentHand=[...play.handUnused];
+      currentHand=[...play.handUnused];aiHandCardsInPlay=play.handUsed;
       log(`${players[currentPlayerIdx].name} (AI) crosswords "${play.word}" (+${play.score} pts)`);
       showAICards(fullSeq);
       setTimeout(()=>showChallengeBanner(),900);
@@ -811,7 +812,7 @@ function renderChallengerList(){const words=[pendingMainWord];if(pendingExtraWor
         if(foundBad){
           d.decision="challenge";
           d.word=foundBad;
-          d.verdict="invalid";
+          d.verdict=null;
         }else{
           d.decision="pass";
         }
@@ -860,14 +861,14 @@ function resolveAllChallenges(){if(!challengeMode)return;const challengers=Objec
       validCount++;
       log(`${label} challenged "${challengeDecisions[i].word}" — ruled VALID. +10 Bunce to ${players[currentPlayerIdx].name}!`);
     }
-  });if(anyInvalid){log(`Play failed — ${players[currentPlayerIdx].name} picks up and replays.`);cancelPlay();renderScores();return;}const bonus=validCount*10;scores[currentPlayerIdx]+=pendingScore+bonus;if(bonus>0)log(`Play stands! ${players[currentPlayerIdx].name} +${pendingScore} pts +${bonus} Bunce 🎉`);else log(`Play accepted — ${players[currentPlayerIdx].name} +${pendingScore} pts.`);finalizeTurn(currentPlayerIdx);renderScores();}
+  });if(anyInvalid){log(`Play failed — ${players[currentPlayerIdx].name} picks up and replays.`);if(isCurrentPlayerAI())aiRejectedWords.add(pendingMainWord);cancelPlay();renderScores();return;}const bonus=validCount*10;scores[currentPlayerIdx]+=pendingScore+bonus;if(bonus>0)log(`Play stands! ${players[currentPlayerIdx].name} +${pendingScore} pts +${bonus} Bunce 🎉`);else log(`Play accepted — ${players[currentPlayerIdx].name} +${pendingScore} pts.`);finalizeTurn(currentPlayerIdx);renderScores();}
 function onWrapInput(){wrapPivotIdx=null;wrapAddedIndices=[];renderWrapPreview();}
 function renderWrapPreview(){const wrapWord=document.getElementById("wrap-input").value.toUpperCase().trim();const preview=document.getElementById("wrap-preview");if(!wrapWord||!boardWord.length){preview.innerHTML='<span style="color:rgba(255,255,255,.3);font-size:13px;font-style:italic;">Type wrap word first</span>';return;}const prevWord=boardWord.join("");const wrapIdx=wrapWord.indexOf(prevWord);const added=new Set();if(wrapIdx>=0){for(let i=0;i<wrapWord.length;i++){if(i<wrapIdx||i>=wrapIdx+prevWord.length)added.add(i);}}else{for(let i=0;i<wrapWord.length;i++)added.add(i);}wrapAddedIndices=[...added];preview.innerHTML=wrapWord.split("").map((l,i)=>{const isAdded=added.has(i);const isPivot=wrapPivotIdx===i;const bg=isPivot?"rgba(245,166,35,.4)":isAdded?"rgba(255,255,255,.2)":"rgba(255,255,255,.05)";const border=isPivot?"#F5A623":isAdded?"white":"rgba(255,255,255,.3)";return `<div ${isAdded?`onclick="setWrapPivot(${i})"`:""} style="width:46px;height:54px;border-radius:7px;border:3px solid ${border};background:${bg};display:flex;align-items:center;justify-content:center;cursor:${isAdded?"pointer":"default"};font-family:Georgia,'Times New Roman',serif;font-size:26px;font-weight:700;color:white;transform:${isPivot?"translateY(-4px)":"none"};transition:transform .12s;opacity:${isAdded?1:.4};">${l}</div>`;}).join("");}
 function setWrapPivot(idx){if(!wrapAddedIndices.includes(idx))return;wrapPivotIdx=(wrapPivotIdx===idx)?null:idx;renderWrapPreview();}
 function matchHandToWord(letters){const avail=currentHand.map((c,i)=>({...c,hIdx:i}));const used=[];for(const ch of letters){let i=avail.findIndex(c=>!c.isWild&&c.letter===ch);if(i===-1)i=avail.findIndex(c=>c.isWild);if(i===-1)return null;used.push(avail[i]);avail.splice(i,1);}return{used,unused:avail};}
 
 function finalizeTurn(bumpIdx){boardWord=pendingNewBoard;boardCards=pendingNewBoardCards;document.getElementById("challenge-banner").classList.remove("visible");challengeMode=false;cantPlayArmed=false;clearTimeout(cantPlayTimer);document.getElementById("cant-play-btn").textContent="🚫 Can't play";crosswordPivotIdx=null;wrapPivotIdx=null;wrapAddedIndices=[];wordBefore=[];wordAfter=[];wordTray=[];crossSeq=[];extendCard=null;pendingExtraWord="";renderScores(bumpIdx);roundsPlayed[currentPlayerIdx]++;currentPlayerIdx=(currentPlayerIdx+1)%players.length;if(roundsPlayed.every(r=>r>currentRound)){currentRound++;if(currentRound>=6){setTimeout(endGame,600);return;}log(`─── Round ${currentRound+1} · ${ROUND_SIZES[currentRound]} cards each · word stays ───`);}setTimeout(()=>{updateUI();drawHand(true);setPlayType(boardWord.length?"crossword":"first");},350);}
-function cancelPlay(){document.getElementById("challenge-banner").classList.remove("visible");challengeMode=false;pendingScore=0;pendingNewBoard=[];pendingNewBoardCards=[];pendingExtraWord="";recallWord();renderHand();renderWordTray();renderBoard();if(isCurrentPlayerAI())setTimeout(doAITurn,1000);}
+function cancelPlay(){document.getElementById("challenge-banner").classList.remove("visible");challengeMode=false;pendingScore=0;pendingNewBoard=[];pendingNewBoardCards=[];pendingExtraWord="";if(isCurrentPlayerAI()){for(const c of aiHandCardsInPlay){if(c.isWild)delete wildAssignment[c.id];currentHand.push(c);}aiHandCardsInPlay=[];}recallWord();renderHand();renderWordTray();renderBoard();if(isCurrentPlayerAI())setTimeout(doAITurn,1000);}
 function endGame(){showScreen("results-screen");const ranked=players.map((p,i)=>({...p,score:scores[i],isAI:aiPlayerIndices.has(i)})).sort((a,b)=>b.score-a.score);document.getElementById("podium").innerHTML=ranked.map((p,i)=>`<div class="result-row ${i===0?"winner":""}"><span style="font-size:21px;margin-right:12px;">${["🥇","🥈","🥉","4️⃣"][i]}</span><span style="flex:1;font-weight:600;text-align:left;">${p.name}${p.isAI?" 🤖":""}</span><span class="result-score" style="color:${p.colorHex}">${p.score}</span></div>`).join("");}
 function lookupChallengedWord(){
   // Find the word being challenged, or fall back to the main played word
@@ -1138,6 +1139,11 @@ function tutGoTo(i) {
 function updateChallengeActions(){const any=Object.values(challengeDecisions||{}).some(d=>d&&d.decision==="challenge");document.getElementById("challenge-actions").style.display=any?"flex":"none";}
 const _renderChallengerList=renderChallengerList;
 renderChallengerList=function(){_renderChallengerList.apply(this,arguments);updateChallengeActions();};
+// Settle the challenge as soon as every opponent has decided and every challenge has a ruling.
+function allChallengesRuled(){const ids=Object.keys(challengeDecisions).map(Number);if(ids.some(i=>challengeDecisions[i].decision===null))return false;const ch=ids.filter(i=>challengeDecisions[i].decision==="challenge");return ch.length>0&&ch.every(i=>challengeDecisions[i].verdict&&(aiPlayerIndices.has(i)||challengeDecisions[i].word));}
+function autoResolveIfRuled(){if(challengeMode&&allChallengesRuled())setTimeout(()=>{if(challengeMode&&allChallengesRuled())resolveAllChallenges();},500);}
+const _setVerdict=setVerdict;setVerdict=function(){_setVerdict.apply(this,arguments);autoResolveIfRuled();};
+const _setAIVerdict=setAIVerdict;setAIVerdict=function(){_setAIVerdict.apply(this,arguments);autoResolveIfRuled();};
 </script>
 </body>
 </html>
