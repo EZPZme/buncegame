@@ -716,7 +716,7 @@ function getCardLetter(c){return c.isWild?(wildAssignment[c.id]||null):c.letter;
 function cardFace(c){const a=wildAssignment[c.id];const wb=c.isWild&&a?`<span class="wild-badge">${a}</span>`:"";return `${artImg(c.colorClass,c.isWild?"*":c.letter)}${wb}`;}
 function boardCardClick(idx){if(challengeMode||isCurrentPlayerAI())return;if(playType!=="crossword"||!boardWord.length)return;const card=boardCards[idx];const pivotPos=crossSeq.findIndex(e=>e.source==="board");if(pivotPos>=0&&crossSeq[pivotPos].boardIdx===idx){if(card.isWild){askWildDirect(card.id);return;}crossSeq.splice(pivotPos,1);crosswordPivotIdx=null;renderBoard();renderWordTray();return;}if(pivotPos>=0)crossSeq.splice(pivotPos,1);crossSeq.push({card,source:"board",boardIdx:idx});crosswordPivotIdx=idx;renderBoard();renderWordTray();if(card.isWild)askWildDirect(card.id);}
 function changePivotWild(){if(crosswordPivotIdx!==null){const card=boardCards[crosswordPivotIdx];if(card.isWild)askWildDirect(card.id);}}
-function askWildDirect(cardId){const cur=wildAssignment[cardId];document.getElementById("wild-modal-title").textContent=cur?`Change pivot letter (now "${cur}")`:"Set the pivot wild letter";document.getElementById("wild-modal-sub").textContent="This wild is your crossword pivot";document.getElementById("wild-letters-grid").innerHTML="ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("").map(l=>`<button class="wild-letter-btn" style="${cur===l?"background:rgba(247,208,138,.5);border-color:#9c5e0c;":""}" onclick="setWildDirect('${cardId}','${l}')">${l}</button>`).join("");showModal();}
+function askWildDirect(cardId){const cur=wildAssignment[cardId];document.getElementById("wild-modal-title").textContent="What letter is the wild on the table?";document.getElementById("wild-modal-sub").textContent=cur?`You're crossing through it. It's now "${cur}": tap ${cur} to keep it, or pick a new letter.`:"You're crossing through it. Pick its letter.";document.getElementById("wild-letters-grid").innerHTML="ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("").map(l=>`<button class="wild-letter-btn" style="${cur===l?"background:rgba(247,208,138,.5);border-color:#9c5e0c;":""}" onclick="setWildDirect('${cardId}','${l}')">${l}</button>`).join("");showModal();}
 function setWildDirect(cardId,letter){wildAssignment[cardId]=letter;hideModal();renderBoard();renderWordTray();}
 function askWildAsync(sub){return new Promise(res=>{wildResolve=res;document.getElementById("wild-modal-title").textContent="What letter is this wild?";document.getElementById("wild-modal-sub").textContent=sub||"";document.getElementById("wild-letters-grid").innerHTML="ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("").map(l=>`<button class="wild-letter-btn" onclick="resolveWildAsync('${l}')">${l}</button>`).join("");showModal();});}
 function resolveWildAsync(l){hideModal();if(wildResolve){wildResolve(l);wildResolve=null;}}
@@ -1163,6 +1163,14 @@ function allChallengesRuled(){const ids=Object.keys(challengeDecisions).map(Numb
 function autoResolveIfRuled(){if(challengeMode&&allChallengesRuled())setTimeout(()=>{if(challengeMode&&allChallengesRuled())resolveAllChallenges();},500);}
 const _setVerdict=setVerdict;setVerdict=function(){_setVerdict.apply(this,arguments);autoResolveIfRuled();};
 const _setAIVerdict=setAIVerdict;setAIVerdict=function(){_setAIVerdict.apply(this,arguments);autoResolveIfRuled();};
+</script>
+<script>
+// Ask for a hand wild's letter the moment it's placed in the word.
+const _addToWord=addToWord;
+addToWord=function(handIdx){const card=currentHand[handIdx];const before=currentHand.length;_addToWord.apply(this,arguments);
+  if(card&&card.isWild&&currentHand.length<before&&!wildAssignment[card.id]){
+    askWildAsync(card===extendCard?"Your connecting card":"The wild card from your hand").then(l=>{wildAssignment[card.id]=l;renderWordTray();renderBoard();});
+  }};
 </script>
 </body>
 </html>
