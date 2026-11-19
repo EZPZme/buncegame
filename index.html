@@ -334,10 +334,11 @@
       <div class="rules-section">
         <h3>Components &amp; Setup</h3>
         <ul>
-          <li>108 cards — 4 coloured sets of 27. Each set contains the full alphabet plus one wild card, all with point values.</li>
-          <li>Each player selects a coloured deck and shuffles it to form their personal draw pile.</li>
-          <li>One player keeps score with pen and paper. Randomly choose who goes first.</li>
-          <li>Agree on a dictionary before play begins — <strong>Merriam-Webster</strong> is recommended.</li>
+          <li>108 cards: 4 coloured decks of 27 (A to Z plus one ✳ wild). Every card has a point value.</li>
+          <li>Add 2–4 players on the start screen. Player 1 plays the Gold deck, Player 2 Red, Player 3 Purple and Player 4 Teal. Each deck is shuffled for you.</li>
+          <li>You can make Player 1 an <strong>AI opponent</strong> (Easy, Medium or Hard).</li>
+          <li>Player 1 goes first. The game keeps score for you.</li>
+          <li>Use <strong>Merriam-Webster</strong> to settle challenges (there's a look-up button), or agree on another dictionary before you start.</li>
         </ul>
       </div>
 
@@ -353,23 +354,25 @@
           <tr><td>6</td><td>2 cards (remaining)</td></tr>
         </table>
         <ul style="margin-top:8px;">
-          <li>In round 1, if <strong>Player 1's</strong> opening hand has no vowel, they show their cards to all players, reshuffle, and take their turn again. This redraw applies only to Player 1 in the first round.</li>
-          <li>Play proceeds clockwise.</li>
+          <li>Each round, every player takes one turn with a new hand drawn from their own deck.</li>
+          <li>If <strong>Player 1's</strong> very first hand has no vowel (a wild counts as one), the game shows a warning and deals them a new hand.</li>
+          <li>Turns go in order: Player 1, Player 2, and so on.</li>
         </ul>
       </div>
 
       <div class="rules-section">
         <h3>Playing a Turn</h3>
         <ul>
-          <li><strong>Round 1, first player:</strong> Build any valid word face-up on the table. Score it, then discard unused cards. That word stays on the table for all following players.</li>
-          <li>From turn 2 onward, connect to the table word in one of three ways:</li>
-          <li><strong>1. Crossword</strong> — Play perpendicular through a letter already on the table (like a crossword). Unused letters from the prior word are discarded.</li>
-          <li><strong>2. Perpendicular off an end</strong> — Play perpendicular off the beginning or end of the table word (e.g. add an "S" then build off it). The <em>entire</em> previous table word is discarded.</li>
-          <li><strong>3. Extend the word</strong> — Add letters at the beginning, end, or both ends to form a new word (e.g. "light" → "delightful"). No table letters are discarded.</li>
-          <li>Only <strong>one word</strong> stays on the table at a time. Parallel plays are not allowed.</li>
-          <li>Words must be <strong>3 letters or longer</strong>. Any entry in the agreed dictionary is valid — including proper nouns and abbreviations without punctuation.</li>
-          <li>A <strong>wild card</strong> (in hand or on the table) may be declared as any letter by the active player.</li>
-          <li>Unused drawn cards are <strong>discarded</strong> after scoring and do not carry to your next turn.</li>
+          <li><strong>The first turn</strong>: Player 1 spells any word from their hand. It goes on the table. (The Play type buttons appear once there's a word to connect to.)</li>
+          <li>After that, your word must connect to the word on the table. Pick one of these play types:</li>
+          <li><strong>Crossword</strong>: tap a letter on the table and build your word through it with cards from your hand (e.g. NAP through the A in SKATE). Your word replaces the table word, and the crossed letter counts toward your score.</li>
+          <li><strong>Extend off end / Extend off start</strong>: add one card to the end or start of the table word so it makes a longer word (e.g. SKATE → SKATES). Then build a new word across through that card (e.g. SUN). Both words must be valid. The new word replaces the table word.</li>
+          <li><strong>Prefix wrap / Suffix wrap / Both wrap</strong>: add letters to the start, the end or both ends of the table word (e.g. LIGHT → DELIGHTFUL). The longer word stays on the table, and <em>all</em> its letters, including the table's, count toward your score.</li>
+          <li>Only <strong>one word</strong> is on the table at a time.</li>
+          <li>Words must be <strong>3 letters or longer</strong>. Any entry in the dictionary counts, including proper nouns and abbreviations without punctuation.</li>
+          <li>A <strong>wild card</strong> can be any letter you choose when you play it. If you cross through a wild on the table, you choose its letter.</li>
+          <li>Cards you don't play are <strong>discarded</strong> and count against you. They don't carry over to your next turn.</li>
+          <li><strong>Can't play?</strong> Tap Can't play (twice to confirm). Your hand is discarded, you lose its total value, and the table word stays.</li>
         </ul>
       </div>
 
@@ -377,9 +380,10 @@
         <h3>Scoring</h3>
         <table class="score-table">
           <tr><th>What</th><th>Points</th></tr>
-          <tr><td>Cards used in your word</td><td>+ sum of their values</td></tr>
+          <tr><td>Cards in your word (including any table letters it uses)</td><td>+ sum of their values</td></tr>
           <tr><td>Cards drawn but not played</td><td>− sum of their values</td></tr>
-          <tr><td>Used ALL drawn cards — Bunce!</td><td>+ 10 bonus</td></tr>
+          <tr><td>Used ALL drawn cards: Bunce!</td><td>+ 10 bonus</td></tr>
+          <tr><td>Can't play</td><td>− value of your whole hand</td></tr>
           <tr><td>Word challenged &amp; ruled <em>valid</em></td><td>+10 per challenger → word player</td></tr>
           <tr><td>Word challenged &amp; ruled <em>invalid</em></td><td>+10 to each challenger</td></tr>
         </table>
@@ -388,10 +392,11 @@
       <div class="rules-section">
         <h3>Challenges &amp; the Bunce Bonus</h3>
         <ul>
-          <li>Any opponent may verbally challenge a word <strong>before points are tallied</strong>.</li>
-          <li>Look the word up together in the agreed dictionary.</li>
-          <li>If the word <strong>is valid</strong>: the word player earns <strong>+10 Bunce for each challenger</strong>, plus their normal word score.</li>
-          <li>If the word <strong>is invalid</strong>: <strong>each person who challenged</strong> earns +10 Bunce. The player picks up their cards and tries again.</li>
+          <li>Before points are counted, each opponent taps <strong>Challenge</strong> or <strong>Pass</strong>. If everyone passes, the points are counted straight away.</li>
+          <li>If someone challenges, look the word up (📖 <strong>Look up on Merriam-Webster</strong>) and tap <strong>Valid</strong> or <strong>Not valid</strong>.</li>
+          <li><strong>Valid</strong>: the word player earns <strong>+10 Bunce for each challenger</strong>, plus their normal word score.</li>
+          <li><strong>Not valid</strong>: <strong>each person who challenged</strong> earns +10 Bunce. The player picks up their cards and tries again.</li>
+          <li>The <strong>AI opponent</strong> challenges any word that isn't in its 20,000-word list. You make the ruling.</li>
           <li>A Bunce is also awarded automatically when a player uses <strong>all</strong> of their drawn cards in one turn.</li>
         </ul>
       </div>
@@ -497,10 +502,9 @@
         <button class="btn btn-gray btn-sm" onclick="shuffleHand()">⤮ Shuffle</button>
         <button class="btn btn-red btn-sm" onclick="cantPlay()" id="cant-play-btn">🚫 Can't play</button>
       </div>
-      <div style="margin-bottom:10px;">
+      <div id="play-type-section" style="margin-bottom:10px;">
         <div class="board-label" style="margin-bottom:7px;">Play type</div>
         <div class="play-type-row" id="play-type-row">
-          <button class="play-type-btn active" data-type="first" onclick="setPlayType('first')">First word</button>
           <button class="play-type-btn" data-type="crossword" onclick="setPlayType('crossword')">Crossword</button>
           <button class="play-type-btn" data-type="extend-end" onclick="setPlayType('extend-end')">Extend off end</button>
           <button class="play-type-btn" data-type="extend-start" onclick="setPlayType('extend-start')">Extend off start</button>
@@ -711,8 +715,8 @@ function drop(e,t){e.preventDefault();if(dragSrcIdx===null||dragSrcIdx===t)retur
 document.addEventListener("touchstart",e=>{if(isCurrentPlayerAI())return;const card=e.target.closest("#hand-cards .card");if(!card||challengeMode)return;touchDragIdx=parseInt(card.dataset.idx);if(isNaN(touchDragIdx))return;touchStartX=e.touches[0].clientX;touchStartY=e.touches[0].clientY;touchMoved=false;},{passive:true});
 document.addEventListener("touchmove",e=>{if(touchDragIdx===null)return;const t=e.touches[0];const dx=Math.abs(t.clientX-touchStartX),dy=Math.abs(t.clientY-touchStartY);if(dx>10||dy>10){touchMoved=true;if(!touchClone){const card=document.querySelector(`#hand-cards .card[data-idx="${touchDragIdx}"]`);if(card){touchClone=card.cloneNode(true);touchClone.style.cssText=`position:fixed;opacity:.85;pointer-events:none;z-index:999;width:56px;height:68px;`;document.body.appendChild(touchClone);card.classList.add("dragging");}}if(touchClone){touchClone.style.left=(t.clientX-28)+"px";touchClone.style.top=(t.clientY-34)+"px";touchClone.style.display="none";}const el=document.elementFromPoint(t.clientX,t.clientY);if(touchClone)touchClone.style.display="";document.querySelectorAll("#hand-cards .card").forEach(c=>c.classList.remove("drag-over"));const target=el&&el.closest("#hand-cards .card");if(target&&parseInt(target.dataset.idx)!==touchDragIdx)target.classList.add("drag-over");}},{passive:true});
 document.addEventListener("touchend",e=>{if(touchDragIdx===null)return;const t=e.changedTouches[0];if(touchClone){touchClone.remove();touchClone=null;}document.querySelectorAll(".card").forEach(c=>c.classList.remove("dragging","drag-over"));if(touchMoved){const el=document.elementFromPoint(t.clientX,t.clientY);const target=el&&el.closest("#hand-cards .card");if(target){const ti=parseInt(target.dataset.idx);if(!isNaN(ti)&&ti!==touchDragIdx){const m=currentHand.splice(touchDragIdx,1)[0];currentHand.splice(ti,0,m);renderHand();}}}touchDragIdx=null;touchMoved=false;},{passive:true});
-function setPlayType(t){if(isCurrentPlayerAI())return;if(t!=="first"&&!boardWord.length){toast("Play the first word before using that move");return;}recallWord();playType=t;crosswordPivotIdx=null;wrapPivotIdx=null;wrapAddedIndices=[];wordBefore=[];wordAfter=[];crossSeq=[];crosswordSide="before";extendCard=null;document.getElementById("word-tray").style.display="block";document.getElementById("main-actions").style.display="flex";document.getElementById("play-btn").textContent="Play word";const hint=document.getElementById("hand-hint");if(t==="crossword")hint.textContent=`Spell ${players[currentPlayerIdx].name}'s word · tap a table letter to cross through it`;else if(t==="extend-end")hint.textContent=`① Tap one card to add to the END · ② build ${players[currentPlayerIdx].name}'s perpendicular word`;else if(t==="extend-start")hint.textContent=`① Tap one card to add to the START · ② build ${players[currentPlayerIdx].name}'s perpendicular word`;else if(t==="prefix"){crosswordSide="before";hint.textContent="Add letters to the START of the table word";}else if(t==="suffix"){crosswordSide="after";hint.textContent="Add letters to the END of the table word";}else if(t==="both"){crosswordSide="before";hint.textContent=`Pick a side, then tap ${players[currentPlayerIdx].name}'s cards to wrap both ends`;}else if(t==="UNUSED")hint.textContent="ove, then press Play wrap + cross";else hint.textContent=`Tap a card to add it to ${players[currentPlayerIdx].name}'s word · drag to rearrange`;updatePlayTypeButtons();renderBoard();renderWordTray();}
-function updatePlayTypeButtons(){document.querySelectorAll("#play-type-row .play-type-btn").forEach(btn=>{const t=btn.dataset.type;btn.classList.toggle("active",t===playType);btn.classList.toggle("disabled",t!=="first"&&!boardWord.length);});if(!boardWord.length)playType="first";}
+function setPlayType(t){if(isCurrentPlayerAI())return;if(t==="first"&&boardWord.length){t="crossword";}if(t!=="first"&&!boardWord.length){toast("Play the first word before using that move");return;}recallWord();playType=t;crosswordPivotIdx=null;wrapPivotIdx=null;wrapAddedIndices=[];wordBefore=[];wordAfter=[];crossSeq=[];crosswordSide="before";extendCard=null;document.getElementById("word-tray").style.display="block";document.getElementById("main-actions").style.display="flex";document.getElementById("play-btn").textContent="Play word";const hint=document.getElementById("hand-hint");if(t==="crossword")hint.textContent=`Spell ${players[currentPlayerIdx].name}'s word · tap a table letter to cross through it`;else if(t==="extend-end")hint.textContent=`① Tap one card to add to the END · ② build ${players[currentPlayerIdx].name}'s perpendicular word`;else if(t==="extend-start")hint.textContent=`① Tap one card to add to the START · ② build ${players[currentPlayerIdx].name}'s perpendicular word`;else if(t==="prefix"){crosswordSide="before";hint.textContent="Add letters to the START of the table word";}else if(t==="suffix"){crosswordSide="after";hint.textContent="Add letters to the END of the table word";}else if(t==="both"){crosswordSide="before";hint.textContent=`Pick a side, then tap ${players[currentPlayerIdx].name}'s cards to wrap both ends`;}else if(t==="UNUSED")hint.textContent="ove, then press Play wrap + cross";else hint.textContent=`Tap a card to add it to ${players[currentPlayerIdx].name}'s word · drag to rearrange`;updatePlayTypeButtons();renderBoard();renderWordTray();}
+function updatePlayTypeButtons(){document.querySelectorAll("#play-type-row .play-type-btn").forEach(btn=>{const t=btn.dataset.type;btn.classList.toggle("active",t===playType);btn.classList.toggle("disabled",t!=="first"&&!boardWord.length);});{const sec=document.getElementById("play-type-section");if(sec)sec.style.display=boardWord.length?"":"none";}if(!boardWord.length)playType="first";}
 function drawHand(deal){aiRejectedWords.clear();aiHandCardsInPlay=[];const p=players[currentPlayerIdx],size=ROUND_SIZES[currentRound];currentHand=[];wordTray=[];wordBefore=[];wordAfter=[];crossSeq=[];extendCard=null;crosswordPivotIdx=null;wrapPivotIdx=null;wrapAddedIndices=[];Object.keys(wildAssignment).forEach(k=>{if(!boardCards.find(c=>c.id===k))delete wildAssignment[k];});for(let i=0;i<size;i++){if(p.deckIdx<p.deck.length)currentHand.push(p.deck[p.deckIdx++]);}checkVowel();renderBoard();renderHand(deal);renderWordTray();{const wi=document.getElementById("wrap-input");if(wi)wi.value="";}}
 function checkVowel(){const isFirst=currentRound===0&&currentPlayerIdx===0&&roundsPlayed.every(r=>r===0)&&!boardWord.length;const hasV=currentHand.some(c=>VOWELS.includes(c.letter)||c.isWild);const banner=document.getElementById("vowel-banner");if(!hasV&&isFirst){banner.classList.add("visible");setTimeout(()=>{banner.classList.remove("visible");const p=players[currentPlayerIdx];const rem=p.deck.slice(p.deckIdx);shuffle(rem);p.deck=[...p.deck.slice(0,p.deckIdx),...rem];drawHand(true);},2000);}else banner.classList.remove("visible");}
 function calcScore(used,unused){return used.reduce((s,c)=>s+c.value,0)-unused.reduce((s,c)=>s+c.value,0)+(unused.length===0?10:0);}
@@ -943,7 +947,7 @@ const TUT_PAGES = [
   {
     icon:"🎯", iconBg:"rgba(245,166,35,.2)",
     title:"Crossword — the Default Play",
-    body:"From round 2 onward, one word stays on the table. <strong>Crossword is the default play type</strong> — your word crosses through a letter already on the table, like in a crossword puzzle. You supply the rest of the letters from your hand.",
+    body:"After the first word, there's always one word on the table. <strong>Crossword is the default play type</strong>: your word crosses through a letter on the table, like in a crossword puzzle. You supply the rest of the letters from your hand, and your word becomes the new table word.",
     demo:`<div style="font-size:12px;margin-top:8px;">
       <div style="color:rgba(255,255,255,.5);font-size:11px;margin-bottom:8px;">Table word: <strong style="color:white;font-family:Georgia,serif;letter-spacing:2px;">SKATE</strong> &nbsp;→ you want to cross through the A.</div>
       <div style="background:rgba(0,0,0,.25);border-radius:10px;padding:12px;display:flex;flex-direction:column;align-items:center;gap:4px;">
@@ -962,62 +966,42 @@ const TUT_PAGES = [
       </div>
       <div style="margin-top:9px;background:rgba(0,0,0,.2);border-radius:8px;padding:8px 11px;font-size:11.5px;line-height:1.8;color:rgba(255,255,255,.7);">
         You play <strong style="color:white;">NAP</strong> — crossing through the <strong style="color:#F5C76B;">A</strong> in SKATE.<br>
-        You supply N + P from your hand. The A is free (already on the table).<br>
-        Score = N(10) + P(6) − unused cards. The table word stays as <strong style="color:white;">SKATE</strong>.
+        You supply N + P from your hand. The A comes from the table and counts toward your score too.<br>
+        Score = N(10) + A(5) + P(6) − unused cards. <strong style="color:white;">NAP</strong> replaces SKATE as the table word.
       </div>
       <div style="margin-top:7px;font-size:11px;color:rgba(255,255,255,.4);">💡 Tap a table letter to select it as your crossing point, then tap hand cards to build your word around it.</div>
     </div>`
   },
   {
     icon:"➕", iconBg:"rgba(169,229,216,.18)",
-    title:"Extend — Add to the Table Word",
-    body:"Instead of crossing, you can <strong>extend the table word</strong> by adding letters to its front, back, or both ends. The table word must stay valid after your additions. No table letters are discarded.",
+    title:"Extend off End / Start",
+    body:"Add <strong>one card</strong> to the end or start of the table word so it makes a longer word. Then build a <strong>new word across</strong> through that card, like a crossword. Both words must be valid, and the new word replaces the table word.",
     demo:`<div style="font-size:12px;margin-top:8px;display:flex;flex-direction:column;gap:9px;">
-      <div style="color:rgba(255,255,255,.5);font-size:11px;">Table word: <strong style="color:white;font-family:Georgia,serif;letter-spacing:2px;">LIGHT</strong></div>
-
-      <div style="background:rgba(169,229,216,.1);border:1px solid rgba(61,191,168,.3);border-radius:8px;padding:9px 11px;">
-        <strong style="color:#7CE0C8;">Extend off the end (suffix)</strong><br>
-        <span style="color:rgba(255,255,255,.7);font-size:11px;">Add <strong>S</strong> after → <strong style="font-family:Georgia,serif;">LIGHTS</strong></span><br>
-        <span style="color:rgba(255,255,255,.5);font-size:11px;">Or add <strong>ED</strong> → <strong style="font-family:Georgia,serif;">LIGHTED</strong> &nbsp;·&nbsp; <strong>ER</strong> → <strong style="font-family:Georgia,serif;">LIGHTER</strong></span>
+      <div style="color:rgba(255,255,255,.5);font-size:11px;">Table word: <strong style="color:white;font-family:Georgia,serif;letter-spacing:1px;">SKATE</strong></div>
+      <div style="background:rgba(0,0,0,.2);border-radius:8px;padding:9px 11px;line-height:1.7;color:rgba(255,255,255,.75);">
+        <strong style="color:#F5C76B;">Extend off end:</strong> add an S → <strong style="color:white;font-family:Georgia,serif;letter-spacing:1px;">SKATES</strong><br>
+        Build across through that S: <strong style="color:white;font-family:Georgia,serif;letter-spacing:1px;">SUN</strong><br>
+        Score = S(8) + U(5) + N(10) − unused cards.<br>
+        <strong style="color:white;font-family:Georgia,serif;letter-spacing:1px;">SUN</strong> is the new table word.
       </div>
-
-      <div style="background:rgba(169,229,216,.1);border:1px solid rgba(61,191,168,.3);border-radius:8px;padding:9px 11px;">
-        <strong style="color:#7CE0C8;">Extend off the start (prefix)</strong><br>
-        <span style="color:rgba(255,255,255,.7);font-size:11px;">Add <strong>DE</strong> before → <strong style="font-family:Georgia,serif;">DELIGHT</strong></span><br>
-        <span style="color:rgba(255,255,255,.5);font-size:11px;">Or add <strong>STAR</strong> before → <strong style="font-family:Georgia,serif;">STARLIGHT</strong></span>
+      <div style="background:rgba(0,0,0,.2);border-radius:8px;padding:9px 11px;line-height:1.7;color:rgba(255,255,255,.75);">
+        <strong style="color:#F5C76B;">Extend off start</strong> works the same way at the front, e.g. add an S before <strong style="color:white;font-family:Georgia,serif;letter-spacing:1px;">HOP</strong> → <strong style="color:white;font-family:Georgia,serif;letter-spacing:1px;">SHOP</strong>.
       </div>
-
-      <div style="background:rgba(169,229,216,.1);border:1px solid rgba(61,191,168,.3);border-radius:8px;padding:9px 11px;">
-        <strong style="color:#7CE0C8;">Extend both ends (wrap)</strong><br>
-        <span style="color:rgba(255,255,255,.7);font-size:11px;">Add <strong>DE</strong> before + <strong>FUL</strong> after → <strong style="font-family:Georgia,serif;">DELIGHTFUL</strong></span>
-      </div>
-
-      <div style="font-size:11px;color:rgba(255,255,255,.4);">The table letters don't cost you anything — you only pay for the new cards you add from your hand.</div>
+      <div style="font-size:11px;color:rgba(255,255,255,.4);">💡 Only the new across word scores; the table word's letters don't count for this move.</div>
     </div>`
   },
   {
     icon:"🔀", iconBg:"rgba(139,77,184,.22)",
-    title:"Pivot Wrap — Replace the Whole Word",
-    body:"A <strong>Pivot Wrap</strong> lets you swap out the table word entirely. You build a new word that <em>contains</em> one of your own cards as a pivot point — that card anchors the new word. The old table word is discarded.",
+    title:"Wrap: Grow the Table Word",
+    body:"Add letters from your hand to the <strong>start</strong> (Prefix wrap), the <strong>end</strong> (Suffix wrap) or <strong>both ends</strong> (Both wrap) of the table word. The longer word stays on the table, and <strong>all of its letters count</strong>, including the ones already on the table.",
     demo:`<div style="font-size:12px;margin-top:8px;display:flex;flex-direction:column;gap:9px;">
-      <div style="color:rgba(255,255,255,.5);font-size:11px;">Table word: <strong style="color:white;font-family:Georgia,serif;letter-spacing:2px;">SKATE</strong> &nbsp;— but you can't use any of those letters.</div>
-
-      <div style="background:rgba(139,77,184,.15);border:1px solid rgba(139,77,184,.4);border-radius:8px;padding:9px 11px;">
-        <strong style="color:#C9A0E8;">How it works:</strong><br>
-        <span style="color:rgba(255,255,255,.7);font-size:11px;">
-          1. Choose <strong>Prefix Wrap</strong>, <strong>Suffix Wrap</strong>, or <strong>Both Wrap</strong> from the Play Type buttons.<br>
-          2. Play cards from your hand to build a brand-new word.<br>
-          3. One of your played cards becomes the <strong style="color:#F5C76B;">pivot</strong> (tap it to select).<br>
-          4. The old table word is thrown away — your new word takes the table.
-        </span>
+      <div style="color:rgba(255,255,255,.5);font-size:11px;">Table word: <strong style="color:white;font-family:Georgia,serif;letter-spacing:1px;">LIGHT</strong> (L8 + I5 + G4 + H8 + T10 = 35)</div>
+      <div style="background:rgba(0,0,0,.2);border-radius:8px;padding:9px 11px;line-height:1.7;color:rgba(255,255,255,.75);">
+        <strong style="color:#F5C76B;">Suffix wrap:</strong> add S → <strong style="color:white;font-family:Georgia,serif;letter-spacing:1px;">LIGHTS</strong> = 35 + S(8) = <strong style="color:#7CE0C8;">43 pts</strong><br>
+        <strong style="color:#F5C76B;">Prefix wrap:</strong> add DE → <strong style="color:white;font-family:Georgia,serif;letter-spacing:1px;">DELIGHT</strong> = 35 + D(8) + E(5) = <strong style="color:#7CE0C8;">48 pts</strong><br>
+        <strong style="color:#F5C76B;">Both wrap:</strong> add DE + FUL → <strong style="color:white;font-family:Georgia,serif;letter-spacing:1px;">DELIGHTFUL</strong>
       </div>
-
-      <div style="background:rgba(0,0,0,.2);border-radius:8px;padding:9px 11px;font-size:11.5px;line-height:1.8;color:rgba(255,255,255,.7);">
-        Example: table has <strong style="color:white;">SKATE</strong>. You play <strong style="color:#C9A0E8;">FUNKY</strong> from your hand with K as the pivot.<br>
-        SKATE is discarded. <strong style="color:white;">FUNKY</strong> is now the table word.
-      </div>
-
-      <div style="font-size:11px;color:rgba(255,255,255,.4);">💡 Use a Pivot Wrap to escape a tough table word or to set up a letter your opponents can't cross.</div>
+      <div style="font-size:11px;color:rgba(255,255,255,.4);">💡 Unused cards in your hand still subtract from these totals. A long table word makes wraps very valuable.</div>
     </div>`
   },
   {
