@@ -355,6 +355,15 @@
     .tg{padding:10px;}
     .tdeck .tc{width:50px;height:50px;}
   }
+
+  .news-inner{max-width:340px;margin:22vh auto 0;text-align:center;}
+  .news-icon{font-size:34px;margin-bottom:6px;}
+  .news-text{font-size:13.5px;line-height:1.55;color:rgba(255,255,255,.8);margin:10px 0 18px;}
+  .news-actions{display:flex;flex-direction:column;align-items:center;gap:10px;}
+  .news-actions .btn-primary{min-width:170px;}
+  .news-skip{background:transparent!important;box-shadow:none!important;border-color:transparent!important;color:rgba(255,255,255,.65);font-weight:600;}
+  .news-btn{display:inline-block;margin-top:16px;text-decoration:none;font-size:13px;background:rgba(245,166,35,.22)!important;border-color:rgba(245,199,107,.55)!important;color:#fff;}
+  .news-btn:hover{background:rgba(245,166,35,.34)!important;}
 </style>
 </head>
 <body>
@@ -368,6 +377,17 @@
   <div class="toast" id="toast"></div>
 
   <!-- ── RULES MODAL ── -->
+  <div class="rules-modal" id="newsletter-modal">
+    <div class="rules-inner news-inner">
+      <div class="news-icon">📬</div>
+      <div class="rules-h1" style="text-align:center;">Get Bunce! news?</div>
+      <p class="news-text">Sign up for <strong>“The Occasional”</strong>, the EZPZ Games newsletter, for new games, events and news. It opens in a new tab, so your game won't be lost.</p>
+      <div class="news-actions">
+        <button class="btn btn-primary" onclick="newsletterChoice(true)">Sign up</button>
+        <button class="btn btn-sm news-skip" onclick="newsletterChoice(false)">Skip</button>
+      </div>
+    </div>
+  </div>
   <div class="rules-modal" id="quick-rules-modal" onclick="if(event.target===this)this.classList.remove('visible')">
     <div class="rules-inner">
       <button class="rules-close" onclick="document.getElementById('quick-rules-modal').classList.remove('visible')">✕</button>
@@ -539,6 +559,7 @@
       <button class="btn btn-sm" onclick="document.getElementById('rules-modal').classList.add('visible')" style="background:rgba(255,255,255,.12);font-size:13px;">📖 Rules</button>
     </div>
     <p style="margin-top:14px;font-size:12px;color:rgba(255,255,255,.4);font-style:italic;">2–4 players · 6 rounds · Pass &amp; play · works offline</p>
+    <a class="btn btn-sm news-btn" href="https://www.seattlegameco.com/newsletter" target="_blank" rel="noopener">📬 Sign up for “The Occasional”</a>
     <p class="copyright">© 2025 Robert McConaughy. All Rights Reserved</p>
   </div>
   <div id="game-screen" class="screen">
@@ -611,6 +632,7 @@
     <p class="tagline" style="margin-bottom:18px;">Final scores</p>
     <div class="podium" id="podium"></div>
     <button class="btn btn-primary btn-lg" onclick="resetGame()" style="margin-top:18px;">Play again</button>
+    <div><a class="btn btn-sm news-btn" href="https://www.seattlegameco.com/newsletter" target="_blank" rel="noopener">📬 Sign up for “The Occasional”</a></div>
     <p class="copyright">© 2025 Robert McConaughy. All Rights Reserved</p>
   </div>
 </div>
@@ -1160,6 +1182,24 @@ addToWord=function(handIdx){const card=currentHand[handIdx];const before=current
   if(card&&card.isWild&&currentHand.length<before&&!wildAssignment[card.id]){
     askWildAsync(card===extendCard?"Your connecting card":"The wild card from your hand").then(l=>{wildAssignment[card.id]=l;renderWordTray();renderBoard();});
   }};
+</script>
+<script>
+// Newsletter prompt: shown once per device, the first time Start game is tapped.
+const NEWSLETTER_URL="https://www.seattlegameco.com/newsletter";
+function newsletterAsked(){try{return localStorage.getItem("bunceNewsletterAsked")==="1";}catch(e){return false;}}
+function markNewsletterAsked(){try{localStorage.setItem("bunceNewsletterAsked","1");}catch(e){}}
+const _startGameOriginal=startGame;
+let newsletterShownThisVisit=false;
+startGame=function(){
+  if(!newsletterAsked()&&!newsletterShownThisVisit){newsletterShownThisVisit=true;document.getElementById("newsletter-modal").classList.add("visible");return;}
+  _startGameOriginal.apply(this,arguments);
+};
+function newsletterChoice(signUp){
+  markNewsletterAsked();
+  if(signUp)window.open(NEWSLETTER_URL,"_blank","noopener");
+  document.getElementById("newsletter-modal").classList.remove("visible");
+  _startGameOriginal();
+}
 </script>
 </body>
 </html>
