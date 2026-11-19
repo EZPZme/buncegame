@@ -305,6 +305,10 @@
   .game-status{margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,.1);}
   .game-status .scores-bar{margin-bottom:0;}
   .copyright{margin:16px 0 4px;text-align:center;font-size:11px;color:rgba(255,255,255,.45);letter-spacing:.2px;}
+
+  .quick-moves{display:flex;flex-direction:column;gap:4px;margin-top:5px;padding:7px 10px;border-radius:8px;background:rgba(0,0,0,.2);font-size:12.5px;}
+  .q-plus{color:#7CE0C8;font-weight:700;}.q-minus{color:#F3B0AF;font-weight:700;}
+  .quick-rules-link{display:block;margin:12px auto 0;background:rgba(255,255,255,.12);font-size:13px;}
 </style>
 </head>
 <body>
@@ -318,6 +322,33 @@
   <div class="toast" id="toast"></div>
 
   <!-- ── RULES MODAL ── -->
+  <div class="rules-modal" id="quick-rules-modal" onclick="if(event.target===this)this.classList.remove('visible')">
+    <div class="rules-inner">
+      <button class="rules-close" onclick="document.getElementById('quick-rules-modal').classList.remove('visible')">✕</button>
+      <div class="rules-h1">⚡ Quick Rules</div>
+      <div class="rules-sub">Bunce! at a glance</div>
+      <div class="rules-section">
+        <ul>
+          <li><strong>Goal:</strong> score the most points after 6 rounds.</li>
+          <li><strong>Setup:</strong> 2–4 players, each with their own colour deck of 27 cards (A–Z plus a ✳ wild). Player 1 goes first and can be the AI.</li>
+          <li><strong>Rounds:</strong> each round you draw a fresh hand of 7, then 6, 5, 4, 3 and 2 cards. Unplayed cards are discarded.</li>
+          <li><strong>First turn:</strong> spell any word of 3+ letters. It goes on the table.</li>
+          <li><strong>Every turn after,</strong> connect to the table word:
+            <div class="quick-moves">
+              <div><strong>Crossword</strong>: build through one table letter. Your word replaces the table word.</div>
+              <div><strong>Extend off end/start</strong>: add one card to the table word, then build a new word across through it.</div>
+              <div><strong>Wrap</strong> (prefix, suffix or both): add letters to the table word's ends. The longer word stays.</div>
+            </div>
+          </li>
+          <li><strong>Scoring:</strong> <span class="q-plus">+</span> cards in your word (including table letters it uses) · <span class="q-minus">−</span> cards you didn't play · <span class="q-plus">+10 Bunce</span> for using all your cards · Can't play = lose your whole hand's value.</li>
+          <li><strong>Challenges:</strong> opponents tap Challenge or Pass. <em>Valid</em> = player gets +10 per challenger. <em>Not valid</em> = each challenger gets +10, and the player tries again.</li>
+          <li><strong>Wild ✳:</strong> any letter you choose (worth 6).</li>
+          <li><strong>Values:</strong> N R T 10 · D H L S 8 · B M P 6 · vowels 5 · C F G W 4 · J K V Y 2 · Q X Z 1</li>
+        </ul>
+      </div>
+      <button class="btn btn-sm" onclick="document.getElementById('quick-rules-modal').classList.remove('visible');document.getElementById('rules-modal').classList.add('visible')" style="background:rgba(255,255,255,.12);font-size:13px;">📖 See the full rules</button>
+    </div>
+  </div>
   <div class="rules-modal" id="rules-modal">
     <div class="rules-inner">
       <button class="rules-close" onclick="document.getElementById('rules-modal').classList.remove('visible')">✕</button>
@@ -457,6 +488,7 @@
     <button class="btn btn-primary btn-lg" onclick="startGame()" style="min-width:170px;">Start game</button>
     <div style="display:flex;gap:10px;justify-content:center;margin-top:14px;flex-wrap:wrap;">
       <button class="btn btn-sm" onclick="showScreen('tutorial-screen');initTutorial();" style="background:rgba(255,255,255,.12);font-size:13px;">🎓 Tutorial</button>
+      <button class="btn btn-sm" onclick="document.getElementById('quick-rules-modal').classList.add('visible')" style="background:rgba(255,255,255,.12);font-size:13px;">⚡ Quick rules</button>
       <button class="btn btn-sm" onclick="document.getElementById('rules-modal').classList.add('visible')" style="background:rgba(255,255,255,.12);font-size:13px;">📖 Rules</button>
     </div>
     <p style="margin-top:14px;font-size:12px;color:rgba(255,255,255,.4);font-style:italic;">2–4 players · 6 rounds · Pass &amp; play · works offline</p>
@@ -523,6 +555,7 @@
       </div>
       <div class="scores-bar" id="scores-bar"></div>
     </div>
+    <button class="btn btn-sm quick-rules-link" onclick="document.getElementById('quick-rules-modal').classList.add('visible')">⚡ Quick rules</button>
     <p class="copyright">© 2025 Robert McConaughy. All Rights Reserved</p>
   </div>
   <div id="results-screen" class="screen">
