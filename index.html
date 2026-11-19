@@ -309,6 +309,9 @@
   .quick-moves{display:flex;flex-direction:column;gap:4px;margin-top:5px;padding:7px 10px;border-radius:8px;background:rgba(0,0,0,.2);font-size:12.5px;}
   .q-plus{color:#7CE0C8;font-weight:700;}.q-minus{color:#F3B0AF;font-weight:700;}
   .quick-rules-link{display:block;margin:12px auto 0;background:rgba(255,255,255,.12);font-size:13px;}
+
+  .tut-header{position:relative;padding-right:84px;}
+  .rules-close.tut-exit{top:2px;right:0;font-size:14px;padding:6px 11px;}
 </style>
 </head>
 <body>
@@ -446,6 +449,7 @@
   <!-- ── TUTORIAL SCREEN ── -->
   <div id="tutorial-screen" class="screen">
     <div class="tut-header">
+      <button class="rules-close tut-exit" onclick="showScreen('setup-screen')" aria-label="Exit tutorial">✕ Exit</button>
       <div style="font-size:30px;">🎓</div>
       <div>
         <div class="tut-title">How to Play Bunce!</div>
