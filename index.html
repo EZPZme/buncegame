@@ -401,6 +401,11 @@
   .out-of-time{font-size:11px;font-weight:600;color:#F3B0AF;margin-left:6px;}
 
   .scores-bar.scores-top{margin-bottom:10px;}
+
+  .link-row{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:16px;}
+  .link-row .news-btn{margin-top:0;}
+  .site-btn{display:inline-block;text-decoration:none;font-size:13px;color:#fff;background:rgba(255,255,255,.12)!important;}
+  .site-btn:hover{background:rgba(255,255,255,.22)!important;}
 </style>
 </head>
 <body>
@@ -444,7 +449,7 @@
             </div>
           </li>
           <li><strong>Scoring:</strong> <span class="q-plus">+</span> cards in your word (including table letters it uses) · <span class="q-minus">−</span> cards you didn't play · <span class="q-plus">+10 Bunce</span> for using all your cards · Can't play = lose your whole hand's value.</li>
-          <li><strong>Challenges:</strong> opponents tap Challenge or Pass. <em>Valid</em> = player gets +10 per challenger. <em>Not valid</em> = each challenger gets +10, and the player tries again.</li>
+          <li><strong>Challenges:</strong> opponents tap Challenge or Accept. <em>Valid</em> = player gets +10 per challenger. <em>Not valid</em> = each challenger gets +10, and the player tries again.</li>
           <li><strong>Wild ✳:</strong> any letter you choose (worth 6).</li>
           <li><strong>Timer (optional):</strong> per turn, running out = Can't play. Per game, running out = you lose.</li>
           <li><strong>Values:</strong> N R T 10 · D H L S 8 · B M P 6 · vowels 5 · C F G W 4 · J K V Y 2 · Q X Z 1</li>
@@ -528,7 +533,7 @@
       <div class="rules-section">
         <h3>Challenges &amp; the Bunce Bonus</h3>
         <ul>
-          <li>Before points are counted, each opponent taps <strong>Challenge</strong> or <strong>Pass</strong>. If everyone passes, the points are counted straight away.</li>
+          <li>Before points are counted, each opponent taps <strong>Challenge</strong> or <strong>Accept</strong>. If everyone accepts, the points are counted straight away.</li>
           <li>If someone challenges, look the word up (📖 <strong>Look up on Merriam-Webster</strong>) and tap <strong>Valid</strong> or <strong>Not valid</strong>.</li>
           <li><strong>Valid</strong>: the word player earns <strong>+10 Bunce for each challenger</strong>, plus their normal word score.</li>
           <li><strong>Not valid</strong>: <strong>each person who challenged</strong> earns +10 Bunce. The player picks up their cards and tries again.</li>
@@ -617,7 +622,7 @@
       <button class="btn btn-sm" onclick="document.getElementById('rules-modal').classList.add('visible')" style="background:rgba(255,255,255,.12);font-size:13px;">📖 Rules</button>
     </div>
     <p style="margin-top:14px;font-size:12px;color:rgba(255,255,255,.4);font-style:italic;">2–4 players · 6 rounds · Pass &amp; play · works offline</p>
-    <a class="btn btn-sm news-btn" href="https://www.seattlegameco.com/newsletter" target="_blank" rel="noopener">📬 Sign up for “The Occasional”</a>
+    <div class="link-row"><a class="btn btn-sm news-btn" href="https://www.seattlegameco.com/newsletter" target="_blank" rel="noopener">📬 Sign up for “The Occasional”</a><a class="btn btn-sm site-btn" href="https://www.ezpz-games.com" target="_blank" rel="noopener">🎲 Visit EZPZ Games</a></div>
     <p class="copyright">© 2025 Robert McConaughy. All Rights Reserved</p>
   </div>
   <div id="game-screen" class="screen">
@@ -632,7 +637,6 @@
       <div class="challenge-sub" id="challenge-summary"></div>
       <div id="challenger-list"></div>
       <div id="challenge-actions" style="margin-top:10px;display:none;gap:8px;flex-wrap:wrap;">
-        <button class="btn btn-teal btn-sm" onclick="resolveAllChallenges()">Done — count points</button>
         <button class="btn btn-sm" id="mw-lookup-btn" onclick="lookupChallengedWord()" style="background:rgba(255,255,255,.12);font-size:13px;">📖 Look up on Merriam-Webster</button>
       </div>
     </div>
@@ -691,7 +695,7 @@
     <p class="tagline" style="margin-bottom:18px;">Final scores</p>
     <div class="podium" id="podium"></div>
     <button class="btn btn-primary btn-lg" onclick="resetGame()" style="margin-top:18px;">Play again</button>
-    <div><a class="btn btn-sm news-btn" href="https://www.seattlegameco.com/newsletter" target="_blank" rel="noopener">📬 Sign up for “The Occasional”</a></div>
+    <div class="link-row"><a class="btn btn-sm news-btn" href="https://www.seattlegameco.com/newsletter" target="_blank" rel="noopener">📬 Sign up for “The Occasional”</a><a class="btn btn-sm site-btn" href="https://www.ezpz-games.com" target="_blank" rel="noopener">🎲 Visit EZPZ Games</a></div>
     <p class="copyright">© 2025 Robert McConaughy. All Rights Reserved</p>
   </div>
 </div>
@@ -1000,7 +1004,7 @@ function renderChallengerList(){const words=[pendingMainWord];if(pendingExtraWor
         }
       }
       if(d.decision==="pass"){
-        actions=`<span style="font-size:12px;color:rgba(255,255,255,.5);font-style:italic;">AI passes ✓</span>`;
+        actions=`<span style="font-size:12px;color:rgba(255,255,255,.5);font-style:italic;">AI accepts ✓</span>`;
       }else{
         // AI challenged — human players decide if the word is actually valid or not
         const vInvalid=d.verdict==="invalid";
@@ -1012,7 +1016,7 @@ function renderChallengerList(){const words=[pendingMainWord];if(pendingExtraWor
           +"<button class='mini-btn' style='"+vsty+"' onclick='setAIVerdict("+i+",&quot;valid&quot;)'>✓ Valid</button>"
           +"<button class='mini-btn' style='"+visty+"' onclick='setAIVerdict("+i+",&quot;invalid&quot;)'>✗ Not valid</button>";
       }
-    }else if(d.decision===null){actions=`<button class="mini-btn challenge" onclick="setChallengeDecision(${i},'challenge')">Challenge</button><button class="mini-btn pass" onclick="setChallengeDecision(${i},'pass')">Pass</button>`;}else if(d.decision==="pass"){actions=`<button class="mini-btn chosen-pass" onclick="resetChallengeDecision(${i})">Passed ✓</button>`;}else{let wordPick="";if(words.length>1){wordPick=`<div class="word-pick">`+words.map(w=>`<button class="word-pick-btn ${d.word===w?"sel":""}" onclick="setChallengeWord(${i},'${w}')">${w}</button>`).join("")+`</div>`;}else if(!d.word){d.word=words[0];}let verdict="";if(d.word){verdict=`<span class="resolve-status">${d.word} valid?</span><button class="mini-btn" style="${d.verdict==="valid"?"background:#A9E5D8;border-color:#15846C;color:#0d3b30;":""}" onclick="setVerdict(${i},'valid')">✓ valid</button><button class="mini-btn" style="${d.verdict==="invalid"?"background:#F3B0AF;border-color:#c23a39;color:#5a0a0a;":""}" onclick="setVerdict(${i},'invalid')">✗ invalid</button>`;}actions=`<button class="mini-btn chosen-challenge" onclick="resetChallengeDecision(${i})">Challenging</button>${wordPick}${verdict}`;}html+=`<div class="challenger-row"><span class="challenger-name"><span class="challenger-dot" style="background:${p.colorHex}"></span>${p.name}${isAI?" 🤖":""}</span><span class="challenger-actions">${actions}</span></div>`;});list.innerHTML=html;}
+    }else if(d.decision===null){actions=`<button class="mini-btn challenge" onclick="setChallengeDecision(${i},'challenge')">Challenge</button><button class="mini-btn pass" onclick="setChallengeDecision(${i},'pass')">Accept</button>`;}else if(d.decision==="pass"){actions=`<button class="mini-btn chosen-pass" onclick="resetChallengeDecision(${i})">Accepted ✓</button>`;}else{let wordPick="";if(words.length>1){wordPick=`<div class="word-pick">`+words.map(w=>`<button class="word-pick-btn ${d.word===w?"sel":""}" onclick="setChallengeWord(${i},'${w}')">${w}</button>`).join("")+`</div>`;}else if(!d.word){d.word=words[0];}let verdict="";if(d.word){verdict=`<span class="resolve-status">${d.word} valid?</span><button class="mini-btn" style="${d.verdict==="valid"?"background:#A9E5D8;border-color:#15846C;color:#0d3b30;":""}" onclick="setVerdict(${i},'valid')">✓ valid</button><button class="mini-btn" style="${d.verdict==="invalid"?"background:#F3B0AF;border-color:#c23a39;color:#5a0a0a;":""}" onclick="setVerdict(${i},'invalid')">✗ invalid</button>`;}actions=`<button class="mini-btn chosen-challenge" onclick="resetChallengeDecision(${i})">Challenging</button>${wordPick}${verdict}`;}html+=`<div class="challenger-row"><span class="challenger-name"><span class="challenger-dot" style="background:${p.colorHex}"></span>${p.name}${isAI?" 🤖":""}</span><span class="challenger-actions">${actions}</span></div>`;});list.innerHTML=html;}
 function setChallengeDecision(i,decision){challengeDecisions[i].decision=decision;challengeDecisions[i].word=null;challengeDecisions[i].verdict=null;renderChallengerList();const opps=Object.keys(challengeDecisions).map(Number);if(opps.every(k=>challengeDecisions[k].decision==="pass"))setTimeout(resolveAllChallenges,450);}
 function resetChallengeDecision(i){if(aiPlayerIndices.has(i))return;challengeDecisions[i]={decision:null,word:null,verdict:null};renderChallengerList();}
 function setChallengeWord(i,word){challengeDecisions[i].word=word;challengeDecisions[i].verdict=null;renderChallengerList();}
@@ -1166,7 +1170,7 @@ const TUT_PAGES = [
   {
     icon:"🛡️", iconBg:"rgba(243,176,175,.2)",
     title:"Challenges & Wilds",
-    body:"Before points count, each opponent taps <strong>Challenge</strong> or <strong>Pass</strong>. If someone challenges, look the word up and tap <strong>Valid</strong> or <strong>Not valid</strong>.",
+    body:"Before points count, each opponent taps <strong>Challenge</strong> or <strong>Accept</strong>. If someone challenges, look the word up and tap <strong>Valid</strong> or <strong>Not valid</strong>.",
     demo:`<div class="tbox"><span class="tpts">Valid:</span> the player gets +10 Bunce for each challenger.<br>
         <span class="tneg">Not valid:</span> each challenger gets +10 Bunce, and the player tries again.<br>
         <span class="tnote">The AI challenges words it doesn't know. You make the ruling.</span></div>
@@ -1248,6 +1252,7 @@ function allChallengesRuled(){const ids=Object.keys(challengeDecisions).map(Numb
 function autoResolveIfRuled(){if(challengeMode&&allChallengesRuled())setTimeout(()=>{if(challengeMode&&allChallengesRuled())resolveAllChallenges();},500);}
 const _setVerdict=setVerdict;setVerdict=function(){_setVerdict.apply(this,arguments);autoResolveIfRuled();};
 const _setAIVerdict=setAIVerdict;setAIVerdict=function(){_setAIVerdict.apply(this,arguments);autoResolveIfRuled();};
+const _setChallengeDecision=setChallengeDecision;setChallengeDecision=function(){_setChallengeDecision.apply(this,arguments);autoResolveIfRuled();};
 </script>
 <script>
 // Ask for a hand wild's letter the moment it's placed in the word.
