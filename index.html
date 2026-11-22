@@ -406,6 +406,11 @@
   .link-row .news-btn{margin-top:0;}
   .site-btn{display:inline-block;text-decoration:none;font-size:13px;color:#fff;background:rgba(255,255,255,.12)!important;}
   .site-btn:hover{background:rgba(255,255,255,.22)!important;}
+
+  .extend-side{display:none;align-items:center;gap:6px;flex-wrap:wrap;margin-top:8px;font-size:12px;color:rgba(255,255,255,.65);}
+  @media (max-width: 480px){ .play-type-row{grid-template-columns:repeat(3,1fr);} }
+
+  @media (max-width: 480px){ #quick-rules-modal .rules-inner{margin:8px auto;padding:18px 18px 16px;} #quick-rules-modal .rules-sub{margin-bottom:12px;} }
 </style>
 </head>
 <body>
@@ -444,8 +449,8 @@
           <li><strong>Every turn after,</strong> connect to the table word:
             <div class="quick-moves">
               <div><strong>Crossword</strong>: build through one table letter. Your word replaces the table word.</div>
-              <div><strong>Extend off end/start</strong>: add one card to the table word, then build a new word across through it.</div>
-              <div><strong>Wrap</strong> (prefix, suffix or both): add letters to the table word's ends. The longer word stays.</div>
+              <div><strong>Branch</strong> (end or start): add one card so the table word is still a valid word, then build a perpendicular word through that card. Only the perpendicular word scores, and it stays on the table.</div>
+              <div><strong>Extend</strong>: add letters to the start, end or both ends of the table word. The longer word stays.</div>
             </div>
           </li>
           <li><strong>Scoring:</strong> <span class="q-plus">+</span> cards in your word (including table letters it uses) · <span class="q-minus">−</span> cards you didn't play · <span class="q-plus">+10 Bunce</span> for using all your cards · Can't play = lose your whole hand's value.</li>
@@ -507,8 +512,8 @@
           <li><strong>The first turn</strong>: Player 1 spells any word from their hand. It goes on the table. (The Play type buttons appear once there's a word to connect to.)</li>
           <li>After that, your word must connect to the word on the table. Pick one of these play types:</li>
           <li><strong>Crossword</strong>: tap a letter on the table and build your word through it with cards from your hand (e.g. NAP through the A in SKATE). Your word replaces the table word, and the crossed letter counts toward your score.</li>
-          <li><strong>Extend off end / Extend off start</strong>: add one card to the end or start of the table word so it makes a longer word (e.g. SKATE → SKATES). Then build a new word across through that card (e.g. SUN). Both words must be valid. The new word replaces the table word.</li>
-          <li><strong>Prefix wrap / Suffix wrap / Both wrap</strong>: add letters to the start, the end or both ends of the table word (e.g. LIGHT → DELIGHTFUL). The longer word stays on the table, and <em>all</em> its letters, including the table's, count toward your score.</li>
+          <li><strong>Branch</strong> (choose end or start): add one card to the end or start of the table word. The table word with that card added <strong>must still be a valid word</strong> (e.g. SKATE → SKATES). Then build a new word perpendicular to the table word, through that card (e.g. SUN). <strong>Only the perpendicular word scores</strong> (including the card you added), and it <strong>replaces the table word</strong>.</li>
+          <li><strong>Extend</strong>: add letters to the start, the end or both ends of the table word (e.g. LIGHT → DELIGHTFUL). The longer word stays on the table, and <em>all</em> its letters, including the table's, count toward your score.</li>
           <li>Only <strong>one word</strong> is on the table at a time.</li>
           <li>Words must be <strong>3 letters or longer</strong>. Any entry in the dictionary counts, including proper nouns and abbreviations without punctuation.</li>
           <li>A <strong>wild card</strong> can be any letter you choose when you play it. If you cross through a wild on the table, you choose its letter.</li>
@@ -670,12 +675,10 @@
         <div class="board-label" style="margin-bottom:7px;">Play type</div>
         <div class="play-type-row" id="play-type-row">
           <button class="play-type-btn" data-type="crossword" onclick="setPlayType('crossword')">Crossword</button>
-          <button class="play-type-btn" data-type="extend-end" onclick="setPlayType('extend-end')">Extend off end</button>
-          <button class="play-type-btn" data-type="extend-start" onclick="setPlayType('extend-start')">Extend off start</button>
-          <button class="play-type-btn" data-type="prefix" onclick="setPlayType('prefix')">Prefix wrap</button>
-          <button class="play-type-btn" data-type="suffix" onclick="setPlayType('suffix')">Suffix wrap</button>
-          <button class="play-type-btn" data-type="both" onclick="setPlayType('both')">Both wrap</button>
+          <button class="play-type-btn" data-type="extend" onclick="chooseExtend()">Branch</button>
+          <button class="play-type-btn" data-type="wrap" onclick="chooseWrap()">Extend</button>
         </div>
+        <div class="extend-side" id="extend-side"><span>Add a card to the table word's:</span><button class="side-btn" data-side="extend-end" onclick="setPlayType('extend-end')">end ▶</button><button class="side-btn" data-side="extend-start" onclick="setPlayType('extend-start')">◀ start</button></div>
 
       </div>
     </div>
@@ -871,8 +874,8 @@ function isExtend(){return (playType==="extend-end"||playType==="extend-start")&
 function isWrap(){return (playType==="prefix"||playType==="suffix"||playType==="both")&&boardWord.length>0;}
 function updatePivotWildBar(){const bar=document.getElementById("pivot-wild-bar");const isCross=playType==="crossword"&&boardWord.length>0;if(isCross&&crosswordPivotIdx!==null&&boardCards[crosswordPivotIdx]&&boardCards[crosswordPivotIdx].isWild){const a=wildAssignment[boardCards[crosswordPivotIdx].id];document.getElementById("pivot-wild-txt").textContent=a?`Pivot wild is set to "${a}"`:"Pivot is a wild — set its letter";bar.classList.add("visible");}else bar.classList.remove("visible");}
 function renderWordTray(){updatePivotWildBar();const slots=document.getElementById("word-slots");const tray=document.getElementById("word-tray");const sideToggle=document.getElementById("side-toggle");const title=document.getElementById("word-tray-title");const extPreview=document.getElementById("extended-preview");const crossHintInline=document.getElementById("cross-hint-inline");const isCross=playType==="crossword"&&boardWord.length>0;const ext=isExtend();const wrap=isWrap();extPreview.style.display="none";crossHintInline.style.display="none";
-  if(ext){title.textContent="Perpendicular word";if(!extendCard){sideToggle.style.display="none";slots.innerHTML=`<span class="word-empty">Tap one card to add to the ${playType==="extend-end"?"END":"START"} of the table word</span>`;tray.classList.remove("has-cards");document.getElementById("word-tray-score").textContent="";return;}extPreview.style.display="block";const extLetter=getCardLetter(extendCard)||"✳";const tableStr=boardWord.join("");const extendedWord=playType==="extend-end"?tableStr+extLetter:extLetter+tableStr;document.getElementById("extended-preview-label").textContent=`Extended table word: "${extendedWord}" (challengeable)`;let extHtml="";const seq=playType==="extend-end"?[...boardCards,extendCard]:[extendCard,...boardCards];seq.forEach(c=>{extHtml+=`<div class="card small ${c.colorClass}${c===extendCard?" pivot-locked":""}">${cardFace(c)}</div>`;});document.getElementById("extended-row").innerHTML=extHtml;sideToggle.style.display="flex";document.getElementById("side-toggle-label").textContent="Perpendicular word — add to:";let html="";wordBefore.forEach((c,i)=>{html+=`<div class="card ${c.colorClass}" onclick="removeFromCross('before',${i})">${cardFace(c)}</div>`;});html+=`<div class="card ${extendCard.colorClass} pivot-locked">${cardFace(extendCard)}</div>`;wordAfter.forEach((c,i)=>{html+=`<div class="card ${c.colorClass}" onclick="removeFromCross('after',${i})">${cardFace(c)}</div>`;});slots.innerHTML=html;tray.classList.add("has-cards");const scored=[...wordBefore,extendCard,...wordAfter];const sc=scored.reduce((s,c)=>s+c.value,0)-currentHand.reduce((s,c)=>s+c.value,0)+(currentHand.length===0?10:0);document.getElementById("word-tray-score").textContent=`${sc>=0?"+":""}${sc} pts`;return;}
-  if(wrap){title.textContent=playType==="prefix"?"Prefix wrap":playType==="suffix"?"Suffix wrap":"Both-ends wrap";if(playType==="both"){sideToggle.style.display="flex";document.getElementById("side-toggle-label").textContent="Add letters to:";}else{sideToggle.style.display="none";}let html="";wordBefore.forEach((c,i)=>{html+=`<div class="card ${c.colorClass}" onclick="removeFromCross('before',${i})">${cardFace(c)}</div>`;});boardCards.forEach(c=>{html+=`<div class="card ${c.colorClass} wrap-locked">${cardFace(c)}</div>`;});wordAfter.forEach((c,i)=>{html+=`<div class="card ${c.colorClass}" onclick="removeFromCross('after',${i})">${cardFace(c)}</div>`;});slots.innerHTML=html;tray.classList.add("has-cards");const scored=[...wordBefore,...boardCards,...wordAfter];const sc=scored.reduce((s,c)=>s+c.value,0)-currentHand.reduce((s,c)=>s+c.value,0)+(currentHand.length===0?10:0);document.getElementById("word-tray-score").textContent=`${sc>=0?"+":""}${sc} pts`;return;}
+  if(ext){title.textContent="Branch word";if(!extendCard){sideToggle.style.display="none";slots.innerHTML=`<span class="word-empty">Tap one card to add to the ${playType==="extend-end"?"END":"START"} of the table word</span>`;tray.classList.remove("has-cards");document.getElementById("word-tray-score").textContent="";return;}extPreview.style.display="block";const extLetter=getCardLetter(extendCard)||"✳";const tableStr=boardWord.join("");const extendedWord=playType==="extend-end"?tableStr+extLetter:extLetter+tableStr;document.getElementById("extended-preview-label").textContent=`Extended table word: "${extendedWord}" (challengeable)`;let extHtml="";const seq=playType==="extend-end"?[...boardCards,extendCard]:[extendCard,...boardCards];seq.forEach(c=>{extHtml+=`<div class="card small ${c.colorClass}${c===extendCard?" pivot-locked":""}">${cardFace(c)}</div>`;});document.getElementById("extended-row").innerHTML=extHtml;sideToggle.style.display="flex";document.getElementById("side-toggle-label").textContent="Branch word — add to:";let html="";wordBefore.forEach((c,i)=>{html+=`<div class="card ${c.colorClass}" onclick="removeFromCross('before',${i})">${cardFace(c)}</div>`;});html+=`<div class="card ${extendCard.colorClass} pivot-locked">${cardFace(extendCard)}</div>`;wordAfter.forEach((c,i)=>{html+=`<div class="card ${c.colorClass}" onclick="removeFromCross('after',${i})">${cardFace(c)}</div>`;});slots.innerHTML=html;tray.classList.add("has-cards");const scored=[...wordBefore,extendCard,...wordAfter];const sc=scored.reduce((s,c)=>s+c.value,0)-currentHand.reduce((s,c)=>s+c.value,0)+(currentHand.length===0?10:0);document.getElementById("word-tray-score").textContent=`${sc>=0?"+":""}${sc} pts`;return;}
+  if(wrap){title.textContent="Extend";if(playType==="both"){sideToggle.style.display="flex";document.getElementById("side-toggle-label").textContent="Add letters to:";}else{sideToggle.style.display="none";}let html="";wordBefore.forEach((c,i)=>{html+=`<div class="card ${c.colorClass}" onclick="removeFromCross('before',${i})">${cardFace(c)}</div>`;});boardCards.forEach(c=>{html+=`<div class="card ${c.colorClass} wrap-locked">${cardFace(c)}</div>`;});wordAfter.forEach((c,i)=>{html+=`<div class="card ${c.colorClass}" onclick="removeFromCross('after',${i})">${cardFace(c)}</div>`;});slots.innerHTML=html;tray.classList.add("has-cards");const scored=[...wordBefore,...boardCards,...wordAfter];const sc=scored.reduce((s,c)=>s+c.value,0)-currentHand.reduce((s,c)=>s+c.value,0)+(currentHand.length===0?10:0);document.getElementById("word-tray-score").textContent=`${sc>=0?"+":""}${sc} pts`;return;}
   if(isCross){title.textContent="Crossword word";sideToggle.style.display="none";crossHintInline.style.display="block";crossHintInline.textContent=`Tap ${players[currentPlayerIdx].name}'s cards · tap a table letter to cross through it`;if(crossSeq.length===0){slots.innerHTML='<span class="word-empty">Tap a letter on the table, then your cards</span>';tray.classList.remove("has-cards");document.getElementById("word-tray-score").textContent="";return;}let html="";crossSeq.forEach((e,i)=>{const locked=e.source==="board";html+=`<div class="card ${e.card.colorClass}${locked?" pivot-locked":""}${locked&&e.card.isWild?" pivot-wild":""}" onclick="${locked&&e.card.isWild?"changePivotWild()":locked?`removeCrossSeq(${i})`:`removeCrossSeq(${i})`}">${cardFace(e.card)}</div>`;});slots.innerHTML=html;tray.classList.add("has-cards");const scored=crossSeq.map(e=>e.card);const sc=scored.reduce((s,c)=>s+c.value,0)-currentHand.reduce((s,c)=>s+c.value,0)+(currentHand.length===0?10:0);document.getElementById("word-tray-score").textContent=`${sc>=0?"+":""}${sc} pts`;return;}
   sideToggle.style.display="none";title.textContent=`${players[currentPlayerIdx].name}'s word`;if(!wordTray.length){slots.innerHTML=`<span class="word-empty">Tap your cards to spell a word</span>`;tray.classList.remove("has-cards");document.getElementById("word-tray-score").textContent="";return;}tray.classList.add("has-cards");slots.innerHTML=wordTray.map((c,i)=>`<div class="card ${c.colorClass}" onclick="removeFromWord(${i})">${cardFace(c)}</div>`).join("");const sc=wordTray.reduce((s,c)=>s+c.value,0)-currentHand.reduce((s,c)=>s+c.value,0)+(currentHand.length===0?10:0);document.getElementById("word-tray-score").textContent=`${sc>=0?"+":""}${sc} pts`;}
 function setSide(s){crosswordSide=s;document.getElementById("side-before").classList.toggle("active",s==="before");document.getElementById("side-after").classList.toggle("active",s==="after");}
@@ -965,12 +968,12 @@ function showAICards(cards){
 }
 
 async function initiatePlay(){if(isCurrentPlayerAI())return;const ext=isExtend();const isCross=playType==="crossword"&&boardWord.length>0;const wrap=isWrap();
-  if(ext){if(!extendCard){toast("Tap a card to add to the table word");return;}if(!wordBefore.length&&!wordAfter.length){toast("Build the perpendicular word around the connecting letter");return;}if(extendCard.isWild&&!wildAssignment[extendCard.id]){wildAssignment[extendCard.id]=await askWildAsync("The connecting letter");}for(const c of [...wordBefore,...wordAfter]){if(c.isWild&&!wildAssignment[c.id])wildAssignment[c.id]=await askWildAsync("A wild in your word");}const extLetter=getCardLetter(extendCard);const tableStr=boardWord.join("");const extendedWord=playType==="extend-end"?tableStr+extLetter:extLetter+tableStr;const perpCards=[...wordBefore,extendCard,...wordAfter];const perpWord=perpCards.map(c=>getCardLetter(c)).join("");if(perpWord.length<3){toast("Perpendicular word must be at least 3 letters");return;}pendingScore=calcScore(perpCards,currentHand);pendingNewBoard=perpWord.split("");pendingNewBoardCards=perpCards;pendingExtraWord=extendedWord;pendingMainWord=perpWord;showChallengeBanner();return;}
-  if(wrap){for(const c of [...wordBefore,...wordAfter]){if(c.isWild&&!wildAssignment[c.id])wildAssignment[c.id]=await askWildAsync("A wild in your word");}if(playType==="prefix"&&!wordBefore.length){toast("Add at least one letter to the START");return;}if(playType==="suffix"&&!wordAfter.length){toast("Add at least one letter to the END");return;}if(playType==="both"&&(!wordBefore.length||!wordAfter.length)){toast("Add letters to BOTH ends");return;}const allCards=[...wordBefore,...boardCards,...wordAfter];const word=allCards.map(c=>getCardLetter(c)).join("");if(word.length<3){toast("Word must be at least 3 letters");return;}pendingScore=calcScore(allCards,currentHand);pendingNewBoard=word.split("");pendingNewBoardCards=allCards;pendingExtraWord="";pendingMainWord=word;showChallengeBanner();return;}
+  if(ext){if(!extendCard){toast("Tap a card to add to the table word");return;}if(!wordBefore.length&&!wordAfter.length){toast("Build the branch word through the card you added");return;}if(extendCard.isWild&&!wildAssignment[extendCard.id]){wildAssignment[extendCard.id]=await askWildAsync("The connecting letter");}for(const c of [...wordBefore,...wordAfter]){if(c.isWild&&!wildAssignment[c.id])wildAssignment[c.id]=await askWildAsync("A wild in your word");}const extLetter=getCardLetter(extendCard);const tableStr=boardWord.join("");const extendedWord=playType==="extend-end"?tableStr+extLetter:extLetter+tableStr;const perpCards=[...wordBefore,extendCard,...wordAfter];const perpWord=perpCards.map(c=>getCardLetter(c)).join("");if(perpWord.length<3){toast("Branch word must be at least 3 letters");return;}pendingScore=calcScore(perpCards,currentHand);pendingNewBoard=perpWord.split("");pendingNewBoardCards=perpCards;pendingExtraWord=extendedWord;pendingMainWord=perpWord;showChallengeBanner();return;}
+  if(wrap){for(const c of [...wordBefore,...wordAfter]){if(c.isWild&&!wildAssignment[c.id])wildAssignment[c.id]=await askWildAsync("A wild in your word");}if(playType==="prefix"&&!wordBefore.length){toast("Add at least one letter to the START");return;}if(playType==="suffix"&&!wordAfter.length){toast("Add at least one letter to the END");return;}if(playType==="both"&&!wordBefore.length&&!wordAfter.length){toast("Add letters to the start or end of the table word");return;}const allCards=[...wordBefore,...boardCards,...wordAfter];const word=allCards.map(c=>getCardLetter(c)).join("");if(word.length<3){toast("Word must be at least 3 letters");return;}pendingScore=calcScore(allCards,currentHand);pendingNewBoard=word.split("");pendingNewBoardCards=allCards;pendingExtraWord="";pendingMainWord=word;showChallengeBanner();return;}
   if(isCross){const pivotEntry=crossSeq.find(e=>e.source==="board");if(!pivotEntry){toast("Tap a letter on the table to cross through");return;}if(crossSeq.filter(e=>e.source==="hand").length<1){toast(`Add at least one letter from ${players[currentPlayerIdx].name}'s hand`);return;}const pivotCard=pivotEntry.card;if(pivotCard.isWild&&!wildAssignment[pivotCard.id]){wildAssignment[pivotCard.id]=await askWildAsync("Set the pivot wild letter");renderBoard();}for(const e of crossSeq){if(e.source==="hand"&&e.card.isWild&&!wildAssignment[e.card.id])wildAssignment[e.card.id]=await askWildAsync("A wild in your word");}const usedCards=crossSeq.map(e=>e.card);const word=usedCards.map(c=>getCardLetter(c)).join("");if(word.length<3){toast("Word must be at least 3 letters");return;}pendingScore=calcScore(usedCards,currentHand);pendingNewBoard=word.split("");pendingNewBoardCards=usedCards;pendingExtraWord="";pendingMainWord=word;showChallengeBanner();return;}
   if(!wordTray.length){toast("Build a word by tapping cards");return;}for(const c of wordTray){if(c.isWild&&!wildAssignment[c.id]){wildAssignment[c.id]=await askWildAsync("A wild card in your word");renderWordTray();}}const word=wordTray.map(c=>getCardLetter(c)).join("");if(word.length<3){toast("Words must be at least 3 letters");return;}pendingScore=calcScore([...wordTray],[...currentHand]);pendingExtraWord="";pendingMainWord=word;pendingNewBoard=word.split("");pendingNewBoardCards=[...wordTray];showChallengeBanner();}
 
-function showChallengeBanner(){challengeMode=true;const main=pendingMainWord;const extra=pendingExtraWord;document.getElementById("challenge-summary").textContent=extra?`${players[currentPlayerIdx].name} played "${main}" (extends to "${extra}"). Worth ${pendingScore} pts. Each opponent may challenge.`:`${players[currentPlayerIdx].name} played "${main}". Worth ${pendingScore} pts. Each opponent may challenge.`;challengeDecisions={};players.forEach((p,i)=>{if(i!==currentPlayerIdx)challengeDecisions[i]={decision:null,word:null,verdict:null};});renderChallengerList();document.getElementById("challenge-banner").classList.add("visible");log(`${players[currentPlayerIdx].name} plays "${main}"${extra?` (extends to "${extra}")`:""} — opponents may challenge.`);
+function showChallengeBanner(){challengeMode=true;const main=pendingMainWord;const extra=pendingExtraWord;document.getElementById("challenge-summary").textContent=extra?`${players[currentPlayerIdx].name} played "${main}" (branching off "${extra}"). Worth ${pendingScore} pts. Each opponent may challenge.`:`${players[currentPlayerIdx].name} played "${main}". Worth ${pendingScore} pts. Each opponent may challenge.`;challengeDecisions={};players.forEach((p,i)=>{if(i!==currentPlayerIdx)challengeDecisions[i]={decision:null,word:null,verdict:null};});renderChallengerList();document.getElementById("challenge-banner").classList.add("visible");log(`${players[currentPlayerIdx].name} plays "${main}"${extra?` (branching off "${extra}")`:""} — opponents may challenge.`);
   // Log AI challenge decisions immediately
   Object.keys(challengeDecisions).map(Number).forEach(i=>{
     if(aiPlayerIndices.has(i)){
@@ -1134,26 +1137,26 @@ const TUT_PAGES = [
   },
   {
     icon:"➕", iconBg:"rgba(169,229,216,.18)",
-    title:"Extend off End / Start",
-    body:"Add <strong>one card</strong> to the end (or start) of the table word so it makes a longer word. Then build a <strong>new word across</strong> through that card. Both must be real words.",
+    title:"Branch",
+    body:"Tap <strong>Branch</strong>, choose <strong>end</strong> or <strong>start</strong>, and add <strong>one card</strong> there. The table word with that card added <strong>must still be a valid word</strong>. Then build a <strong>new word perpendicular</strong> to the table word, through that card. <strong>Only the perpendicular word scores</strong>, and it stays on the table.",
     demo:`${tgrid(6,3,[[1,1,TP1,"S","dim"],[1,2,TP1,"K","dim"],[1,3,TP1,"A","dim"],[1,4,TP1,"T","dim"],[1,5,TP1,"E","dim"],[1,6,TP2,"S","new"],[2,6,TP2,"U","new"],[3,6,TP2,"N","new"]])}
       ${tkey()}
-      <div class="tbox">1. Add an S to the end: SKATE → <strong>SKATES</strong>.<br>
-        2. Build <strong>SUN</strong> down from that S.<br>
-        Score: S(8) + U(5) + N(10) = <span class="tpts">23</span>, minus the cards left in your hand.<br>
-        <strong>SUN</strong> becomes the new table word.</div>
-      <div class="tnote">Extend off start works the same way at the front, e.g. S + HOP = SHOP.</div>`
+      <div class="tbox">1. Add an S to the end: SKATE → <strong>SKATES</strong> (still a valid word ✓).<br>
+        2. Build <strong>SUN</strong> perpendicular, down from that S.<br>
+        Score: S(8) + U(5) + N(10) = <span class="tpts">23</span>, minus the cards left in your hand. SKATE's letters don't score.<br>
+        <strong>SUN</strong> stays on the table; SKATE is removed.</div>
+      <div class="tnote">Choosing <strong>start</strong> works the same way at the front, e.g. S + HOP = SHOP.</div>`
   },
   {
     icon:"🔀", iconBg:"rgba(139,77,184,.22)",
-    title:"Wrap",
-    body:"Add letters from your hand to the <strong>start</strong> (Prefix wrap), the <strong>end</strong> (Suffix wrap) or <strong>both ends</strong> (Both wrap) of the table word. The longer word stays, and <strong>every letter scores</strong>, the table's too.",
+    title:"Extend",
+    body:"Tap <strong>Extend</strong> and add letters from your hand to the <strong>start</strong>, the <strong>end</strong> or <strong>both ends</strong> of the table word (use ◀ start / end ▶ to pick the side). The longer word stays, and <strong>every letter scores</strong>, the table's too.",
     demo:`${tgrid(10,1,[[1,1,TP2,"D","new"],[1,2,TP2,"E","new"],[1,3,TP1,"L",""],[1,4,TP1,"I",""],[1,5,TP1,"G",""],[1,6,TP1,"H",""],[1,7,TP1,"T",""],[1,8,TP2,"F","new"],[1,9,TP2,"U","new"],[1,10,TP2,"L","new"]])}
-      <div class="tbox"><strong>Both wrap:</strong> DE + LIGHT + FUL = <strong>DELIGHTFUL</strong><br>
+      <div class="tbox"><strong>Both ends:</strong> DE + LIGHT + FUL = <strong>DELIGHTFUL</strong><br>
         LIGHT (35) + D, E (13) + F, U, L (17) = <span class="tpts">65</span>, minus the cards left in your hand.</div>
-      <div class="tbox"><strong>Suffix wrap:</strong> LIGHT + S = LIGHTS (<span class="tpts">43</span>)<br>
-        <strong>Prefix wrap:</strong> DE + LIGHT = DELIGHT (<span class="tpts">48</span>)</div>
-      <div class="tnote">A long table word makes wraps very valuable.</div>`
+      <div class="tbox"><strong>End only:</strong> LIGHT + S = LIGHTS (<span class="tpts">43</span>)<br>
+        <strong>Start only:</strong> DE + LIGHT = DELIGHT (<span class="tpts">48</span>)</div>
+      <div class="tnote">A long table word makes extending it very valuable.</div>`
   },
   {
     icon:"⚡", iconBg:"rgba(245,166,35,.2)",
@@ -1362,8 +1365,36 @@ function gameTimeUp(i){
 function updateTimerNote(){const c=readTimerChoice(),n=document.getElementById("timer-note");if(!n)return;
   n.textContent=c.mode==="turn"?"Run out of time on your turn and it counts as Can't play.":c.mode==="game"?"Each player gets this much in total. Run out and you lose the game.":"";}
 document.getElementById("timer-select").addEventListener("change",updateTimerNote);
+// After a successful challenge (word ruled not valid) the player tries again: on the per-turn
+// timer they get the greater of 1:00 or the time they had left when the challenge paused it.
+const _cancelPlayT=cancelPlay;cancelPlay=function(){
+  _cancelPlayT.apply(this,arguments);
+  if(timerMode==="turn"&&!isCurrentPlayerAI()){turnLeft=Math.max(60,turnLeft);timerFired=false;timerLast=performance.now();renderTimer();}
+};
 // Stop the clock when leaving the game (Play again)
 const _resetGameT=resetGame;resetGame=function(){clearInterval(timerTick);timerTick=null;timerMode="none";renderTimer();_resetGameT.apply(this,arguments);};
+</script>
+<script>
+// Three play types: Crossword, Extend (end/start sub-choice) and Wrap (start/end/both)
+let extendSidePref="extend-end";
+function chooseExtend(){setPlayType(extendSidePref);}
+function chooseWrap(){setPlayType("both");if(playType==="both"){setSide("after");renderWordTray();}}
+const _updatePlayTypeButtons=updatePlayTypeButtons;
+updatePlayTypeButtons=function(){
+  _updatePlayTypeButtons.apply(this,arguments);
+  const fam=playType.startsWith("extend")?"extend":(["prefix","suffix","both"].includes(playType)?"wrap":playType);
+  document.querySelectorAll("#play-type-row .play-type-btn").forEach(b=>b.classList.toggle("active",b.dataset.type===fam));
+  const es=document.getElementById("extend-side");
+  if(es){es.style.display=fam==="extend"&&boardWord.length?"flex":"none";es.querySelectorAll("button").forEach(b=>b.classList.toggle("active",b.dataset.side===playType));}
+  if(playType.startsWith("extend"))extendSidePref=playType;
+};
+// The ◀ / ▶ switch reads "start / end" for Wrap and "before / after" when building an Extend word
+const _renderWordTray=renderWordTray;
+renderWordTray=function(){
+  _renderWordTray.apply(this,arguments);
+  const b=document.getElementById("side-before"),a=document.getElementById("side-after");
+  if(b&&a){const w=isWrap();b.textContent=w?"◀ start":"◀ before";a.textContent=w?"end ▶":"after ▶";}
+};
 </script>
 </body>
 </html>
