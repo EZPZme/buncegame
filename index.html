@@ -467,7 +467,7 @@
     <div class="rules-inner">
       <button class="rules-close" onclick="document.getElementById('rules-modal').classList.remove('visible')">✕</button>
       <div class="rules-h1">📖 Official Bunce! Rules</div>
-      <div class="rules-sub">108 cards · 4 coloured sets · 6 rounds · 2–4 players</div>
+      <div class="rules-sub">108 cards · 4 coloured decks · 6 rounds · 2–4 players</div>
 
       <div class="rules-section">
         <h3>Objective</h3>
@@ -483,7 +483,7 @@
           <li>Add 2–4 players on the start screen. Player 1 plays the Gold deck, Player 2 Red, Player 3 Purple and Player 4 Teal. Each deck is shuffled for you.</li>
           <li>You can make Player 1 an <strong>AI opponent</strong> (Easy, Medium, Hard or Expert).</li>
           <li>Player 1 goes first. The game keeps score for you.</li>
-          <li><strong>Optional timer:</strong> per turn (30 sec to 3 min; if it runs out, it counts as Can't play) or per game (5 to 15 min each; if your clock runs out, you lose the game). The clock pauses during challenges.</li>
+          <li><strong>Optional timer:</strong> per turn (30 sec to 3 min; if it runs out, it counts as Can't play) or per game (5 to 15 min each; if your clock runs out, you lose the game). The clock pauses during challenges. After a successful challenge, the per-turn clock gives the player at least 1:00 to try again.</li>
           <li>Use <strong>Merriam-Webster</strong> to settle challenges (there's a look-up button), or agree on another dictionary before you start.</li>
         </ul>
       </div>
@@ -531,7 +531,7 @@
           <tr><td>Used ALL drawn cards: Bunce!</td><td>+ 10 bonus</td></tr>
           <tr><td>Can't play</td><td>− value of your whole hand</td></tr>
           <tr><td>Word challenged &amp; ruled <em>valid</em></td><td>+10 per challenger → word player</td></tr>
-          <tr><td>Word challenged &amp; ruled <em>invalid</em></td><td>+10 to each challenger</td></tr>
+          <tr><td>Word challenged &amp; ruled <em>not valid</em></td><td>+10 to each challenger</td></tr>
         </table>
       </div>
 
@@ -592,7 +592,7 @@
       <div id="ai-level-row" style="display:none;margin-top:8px;background:rgba(0,0,0,.25);border-radius:8px;padding:12px;">
         <label for="ai-level-select" style="display:block;color:rgba(255,255,255,.7);font-size:13px;margin-bottom:6px;">AI difficulty:</label>
         <select id="ai-level-select" style="display:block;width:100%;padding:12px;border-radius:8px;background:#163d27;color:white;border:2px solid rgba(255,255,255,.4);font-size:16px;" onchange="aiPlayerLevel=parseInt(this.value)">
-          <option value="1">Easy — common words only</option>
+          <option value="1">Easy — 5,000 common words</option>
           <option value="2">Medium — 12,500 words</option>
           <option value="3">Hard — 20,000 words</option>
           <option value="4">Expert — 40,000 words</option>
@@ -626,7 +626,7 @@
       <button class="btn btn-sm" onclick="document.getElementById('quick-rules-modal').classList.add('visible')" style="background:rgba(255,255,255,.12);font-size:13px;">⚡ Quick rules</button>
       <button class="btn btn-sm" onclick="document.getElementById('rules-modal').classList.add('visible')" style="background:rgba(255,255,255,.12);font-size:13px;">📖 Rules</button>
     </div>
-    <p style="margin-top:14px;font-size:12px;color:rgba(255,255,255,.4);font-style:italic;">2–4 players · 6 rounds · Pass &amp; play · works offline</p>
+    <p style="margin-top:14px;font-size:12px;color:rgba(255,255,255,.4);font-style:italic;">2–4 players · 6 rounds · Pass &amp; play or play the AI</p>
     <div class="link-row"><a class="btn btn-sm news-btn" href="https://www.seattlegameco.com/newsletter" target="_blank" rel="noopener">📬 Sign up for “The Occasional”</a><a class="btn btn-sm site-btn" href="https://www.ezpz-games.com" target="_blank" rel="noopener">🎲 Visit EZPZ Games</a></div>
     <p class="copyright">© 2025 Robert McConaughy. All Rights Reserved</p>
   </div>
@@ -815,6 +815,7 @@ function findBestPlay(hand, tableWord, aiLevel) {
 
 // ── GAME STATE ───────────────────────────────────────────────────────────────
 let aiRejectedWords=new Set(),aiHandCardsInPlay=[];
+function fmtPts(n){return (n<0?"−":"+")+Math.abs(n);} // +14 / −13
 // AI turn pacing (milliseconds)
 const AI_THINK_MS=1500, AI_CARD_MS=600, AI_PAUSE_MS=1200;
 function aiRevealMs(n){return AI_CARD_MS*(n+0.5)+AI_PAUSE_MS;}
@@ -875,7 +876,7 @@ function isWrap(){return (playType==="prefix"||playType==="suffix"||playType==="
 function updatePivotWildBar(){const bar=document.getElementById("pivot-wild-bar");const isCross=playType==="crossword"&&boardWord.length>0;if(isCross&&crosswordPivotIdx!==null&&boardCards[crosswordPivotIdx]&&boardCards[crosswordPivotIdx].isWild){const a=wildAssignment[boardCards[crosswordPivotIdx].id];document.getElementById("pivot-wild-txt").textContent=a?`Pivot wild is set to "${a}"`:"Pivot is a wild — set its letter";bar.classList.add("visible");}else bar.classList.remove("visible");}
 function renderWordTray(){updatePivotWildBar();const slots=document.getElementById("word-slots");const tray=document.getElementById("word-tray");const sideToggle=document.getElementById("side-toggle");const title=document.getElementById("word-tray-title");const extPreview=document.getElementById("extended-preview");const crossHintInline=document.getElementById("cross-hint-inline");const isCross=playType==="crossword"&&boardWord.length>0;const ext=isExtend();const wrap=isWrap();extPreview.style.display="none";crossHintInline.style.display="none";
   if(ext){title.textContent="Branch word";if(!extendCard){sideToggle.style.display="none";slots.innerHTML=`<span class="word-empty">Tap one card to add to the ${playType==="extend-end"?"END":"START"} of the table word</span>`;tray.classList.remove("has-cards");document.getElementById("word-tray-score").textContent="";return;}extPreview.style.display="block";const extLetter=getCardLetter(extendCard)||"✳";const tableStr=boardWord.join("");const extendedWord=playType==="extend-end"?tableStr+extLetter:extLetter+tableStr;document.getElementById("extended-preview-label").textContent=`Extended table word: "${extendedWord}" (challengeable)`;let extHtml="";const seq=playType==="extend-end"?[...boardCards,extendCard]:[extendCard,...boardCards];seq.forEach(c=>{extHtml+=`<div class="card small ${c.colorClass}${c===extendCard?" pivot-locked":""}">${cardFace(c)}</div>`;});document.getElementById("extended-row").innerHTML=extHtml;sideToggle.style.display="flex";document.getElementById("side-toggle-label").textContent="Branch word — add to:";let html="";wordBefore.forEach((c,i)=>{html+=`<div class="card ${c.colorClass}" onclick="removeFromCross('before',${i})">${cardFace(c)}</div>`;});html+=`<div class="card ${extendCard.colorClass} pivot-locked">${cardFace(extendCard)}</div>`;wordAfter.forEach((c,i)=>{html+=`<div class="card ${c.colorClass}" onclick="removeFromCross('after',${i})">${cardFace(c)}</div>`;});slots.innerHTML=html;tray.classList.add("has-cards");const scored=[...wordBefore,extendCard,...wordAfter];const sc=scored.reduce((s,c)=>s+c.value,0)-currentHand.reduce((s,c)=>s+c.value,0)+(currentHand.length===0?10:0);document.getElementById("word-tray-score").textContent=`${sc>=0?"+":""}${sc} pts`;return;}
-  if(wrap){title.textContent="Extend";if(playType==="both"){sideToggle.style.display="flex";document.getElementById("side-toggle-label").textContent="Add letters to:";}else{sideToggle.style.display="none";}let html="";wordBefore.forEach((c,i)=>{html+=`<div class="card ${c.colorClass}" onclick="removeFromCross('before',${i})">${cardFace(c)}</div>`;});boardCards.forEach(c=>{html+=`<div class="card ${c.colorClass} wrap-locked">${cardFace(c)}</div>`;});wordAfter.forEach((c,i)=>{html+=`<div class="card ${c.colorClass}" onclick="removeFromCross('after',${i})">${cardFace(c)}</div>`;});slots.innerHTML=html;tray.classList.add("has-cards");const scored=[...wordBefore,...boardCards,...wordAfter];const sc=scored.reduce((s,c)=>s+c.value,0)-currentHand.reduce((s,c)=>s+c.value,0)+(currentHand.length===0?10:0);document.getElementById("word-tray-score").textContent=`${sc>=0?"+":""}${sc} pts`;return;}
+  if(wrap){title.textContent="Extended word";if(playType==="both"){sideToggle.style.display="flex";document.getElementById("side-toggle-label").textContent="Add letters to:";}else{sideToggle.style.display="none";}let html="";wordBefore.forEach((c,i)=>{html+=`<div class="card ${c.colorClass}" onclick="removeFromCross('before',${i})">${cardFace(c)}</div>`;});boardCards.forEach(c=>{html+=`<div class="card ${c.colorClass} wrap-locked">${cardFace(c)}</div>`;});wordAfter.forEach((c,i)=>{html+=`<div class="card ${c.colorClass}" onclick="removeFromCross('after',${i})">${cardFace(c)}</div>`;});slots.innerHTML=html;tray.classList.add("has-cards");const scored=[...wordBefore,...boardCards,...wordAfter];const sc=scored.reduce((s,c)=>s+c.value,0)-currentHand.reduce((s,c)=>s+c.value,0)+(currentHand.length===0?10:0);document.getElementById("word-tray-score").textContent=`${sc>=0?"+":""}${sc} pts`;return;}
   if(isCross){title.textContent="Crossword word";sideToggle.style.display="none";crossHintInline.style.display="block";crossHintInline.textContent=`Tap ${players[currentPlayerIdx].name}'s cards · tap a table letter to cross through it`;if(crossSeq.length===0){slots.innerHTML='<span class="word-empty">Tap a letter on the table, then your cards</span>';tray.classList.remove("has-cards");document.getElementById("word-tray-score").textContent="";return;}let html="";crossSeq.forEach((e,i)=>{const locked=e.source==="board";html+=`<div class="card ${e.card.colorClass}${locked?" pivot-locked":""}${locked&&e.card.isWild?" pivot-wild":""}" onclick="${locked&&e.card.isWild?"changePivotWild()":locked?`removeCrossSeq(${i})`:`removeCrossSeq(${i})`}">${cardFace(e.card)}</div>`;});slots.innerHTML=html;tray.classList.add("has-cards");const scored=crossSeq.map(e=>e.card);const sc=scored.reduce((s,c)=>s+c.value,0)-currentHand.reduce((s,c)=>s+c.value,0)+(currentHand.length===0?10:0);document.getElementById("word-tray-score").textContent=`${sc>=0?"+":""}${sc} pts`;return;}
   sideToggle.style.display="none";title.textContent=`${players[currentPlayerIdx].name}'s word`;if(!wordTray.length){slots.innerHTML=`<span class="word-empty">Tap your cards to spell a word</span>`;tray.classList.remove("has-cards");document.getElementById("word-tray-score").textContent="";return;}tray.classList.add("has-cards");slots.innerHTML=wordTray.map((c,i)=>`<div class="card ${c.colorClass}" onclick="removeFromWord(${i})">${cardFace(c)}</div>`).join("");const sc=wordTray.reduce((s,c)=>s+c.value,0)-currentHand.reduce((s,c)=>s+c.value,0)+(currentHand.length===0?10:0);document.getElementById("word-tray-score").textContent=`${sc>=0?"+":""}${sc} pts`;}
 function setSide(s){crosswordSide=s;document.getElementById("side-before").classList.toggle("active",s==="before");document.getElementById("side-after").classList.toggle("active",s==="after");}
@@ -916,7 +917,7 @@ function doAITurn(){
     if(!play){
       const pen=currentHand.reduce((s,c)=>s+c.value,0);
       scores[currentPlayerIdx]-=pen;
-      log(`${players[currentPlayerIdx].name} (AI) can't play — lost ${pen} pts.`);
+      log(`${players[currentPlayerIdx].name} (AI) can't play — hand discarded, lost ${pen} pts.`);
       pendingNewBoard=boardWord;pendingNewBoardCards=boardCards;pendingExtraWord="";
       renderScores();toast(`${players[currentPlayerIdx].name} (AI) can't play — loses ${pen} pts`);
       setTimeout(()=>{finalizeTurn(currentPlayerIdx);renderScores();},AI_PAUSE_MS*2);
@@ -931,7 +932,7 @@ function doAITurn(){
       pendingNewBoardCards=play.used;
       pendingExtraWord="";pendingMainWord=play.word;
       currentHand=[...play.unused];aiHandCardsInPlay=play.used;
-      log(`${players[currentPlayerIdx].name} (AI) plays "${play.word}" (+${play.score} pts)`);
+      log(`${players[currentPlayerIdx].name} (AI) plays "${play.word}" (${fmtPts(play.score)} pts)`);
       showAICards(play.used);
       setTimeout(()=>showChallengeBanner(),aiRevealMs(play.used.length));
     } else if(play.type==="crossword"){
@@ -951,7 +952,7 @@ function doAITurn(){
       pendingNewBoardCards=fullSeq;
       pendingExtraWord="";pendingMainWord=play.word;
       currentHand=[...play.handUnused];aiHandCardsInPlay=play.handUsed;
-      log(`${players[currentPlayerIdx].name} (AI) crosses "${play.word}" through the ${play.pivotLetter} in ${boardWord.join("")} (+${play.score} pts)`);
+      log(`${players[currentPlayerIdx].name} (AI) crosses "${play.word}" through the ${play.pivotLetter} in ${boardWord.join("")} (${fmtPts(play.score)} pts)`);
       crosswordPivotIdx=play.pivotTableIdx;renderBoard();
       showAICards(fullSeq);
       setTimeout(()=>showChallengeBanner(),aiRevealMs(fullSeq.length));
@@ -1019,7 +1020,7 @@ function renderChallengerList(){const words=[pendingMainWord];if(pendingExtraWor
           +"<button class='mini-btn' style='"+vsty+"' onclick='setAIVerdict("+i+",&quot;valid&quot;)'>✓ Valid</button>"
           +"<button class='mini-btn' style='"+visty+"' onclick='setAIVerdict("+i+",&quot;invalid&quot;)'>✗ Not valid</button>";
       }
-    }else if(d.decision===null){actions=`<button class="mini-btn challenge" onclick="setChallengeDecision(${i},'challenge')">Challenge</button><button class="mini-btn pass" onclick="setChallengeDecision(${i},'pass')">Accept</button>`;}else if(d.decision==="pass"){actions=`<button class="mini-btn chosen-pass" onclick="resetChallengeDecision(${i})">Accepted ✓</button>`;}else{let wordPick="";if(words.length>1){wordPick=`<div class="word-pick">`+words.map(w=>`<button class="word-pick-btn ${d.word===w?"sel":""}" onclick="setChallengeWord(${i},'${w}')">${w}</button>`).join("")+`</div>`;}else if(!d.word){d.word=words[0];}let verdict="";if(d.word){verdict=`<span class="resolve-status">${d.word} valid?</span><button class="mini-btn" style="${d.verdict==="valid"?"background:#A9E5D8;border-color:#15846C;color:#0d3b30;":""}" onclick="setVerdict(${i},'valid')">✓ valid</button><button class="mini-btn" style="${d.verdict==="invalid"?"background:#F3B0AF;border-color:#c23a39;color:#5a0a0a;":""}" onclick="setVerdict(${i},'invalid')">✗ invalid</button>`;}actions=`<button class="mini-btn chosen-challenge" onclick="resetChallengeDecision(${i})">Challenging</button>${wordPick}${verdict}`;}html+=`<div class="challenger-row"><span class="challenger-name"><span class="challenger-dot" style="background:${p.colorHex}"></span>${p.name}${isAI?" 🤖":""}</span><span class="challenger-actions">${actions}</span></div>`;});list.innerHTML=html;}
+    }else if(d.decision===null){actions=`<button class="mini-btn challenge" onclick="setChallengeDecision(${i},'challenge')">Challenge</button><button class="mini-btn pass" onclick="setChallengeDecision(${i},'pass')">Accept</button>`;}else if(d.decision==="pass"){actions=`<button class="mini-btn chosen-pass" onclick="resetChallengeDecision(${i})">Accepted ✓</button>`;}else{let wordPick="";if(words.length>1){wordPick=`<div class="word-pick">`+words.map(w=>`<button class="word-pick-btn ${d.word===w?"sel":""}" onclick="setChallengeWord(${i},'${w}')">${w}</button>`).join("")+`</div>`;}else if(!d.word){d.word=words[0];}let verdict="";if(d.word){verdict=`<span class="resolve-status">Is ${d.word} valid?</span><button class="mini-btn" style="${d.verdict==="valid"?"background:#A9E5D8;border-color:#15846C;color:#0d3b30;":""}" onclick="setVerdict(${i},'valid')">✓ Valid</button><button class="mini-btn" style="${d.verdict==="invalid"?"background:#F3B0AF;border-color:#c23a39;color:#5a0a0a;":""}" onclick="setVerdict(${i},'invalid')">✗ Not valid</button>`;}actions=`<button class="mini-btn chosen-challenge" onclick="resetChallengeDecision(${i})">Challenging</button>${wordPick}${verdict}`;}html+=`<div class="challenger-row"><span class="challenger-name"><span class="challenger-dot" style="background:${p.colorHex}"></span>${p.name}${isAI?" 🤖":""}</span><span class="challenger-actions">${actions}</span></div>`;});list.innerHTML=html;}
 function setChallengeDecision(i,decision){challengeDecisions[i].decision=decision;challengeDecisions[i].word=null;challengeDecisions[i].verdict=null;renderChallengerList();const opps=Object.keys(challengeDecisions).map(Number);if(opps.every(k=>challengeDecisions[k].decision==="pass"))setTimeout(resolveAllChallenges,450);}
 function resetChallengeDecision(i){if(aiPlayerIndices.has(i))return;challengeDecisions[i]={decision:null,word:null,verdict:null};renderChallengerList();}
 function setChallengeWord(i,word){challengeDecisions[i].word=word;challengeDecisions[i].verdict=null;renderChallengerList();}
@@ -1039,18 +1040,18 @@ function resolveAllChallenges(){if(!challengeMode)return;const challengers=Objec
       continue;
     }
     if(!challengeDecisions[i].word){toast(`${players[i].name}: pick which word to challenge`);return;}
-    if(!challengeDecisions[i].verdict){toast(`${players[i].name}: mark the word valid or invalid`);return;}
+    if(!challengeDecisions[i].verdict){toast(`${players[i].name}: tap Valid or Not valid`);return;}
   }let anyInvalid=false;let validCount=0;challengers.forEach(i=>{
     const isAI=aiPlayerIndices.has(i);
     const label=isAI?`🤖 ${players[i].name}`:`${players[i].name}`;
     if(challengeDecisions[i].verdict==="invalid"){
       scores[i]+=10;anyInvalid=true;
-      log(`${label} challenged "${challengeDecisions[i].word}" — INVALID. +10 Bunce to ${label}!`);
+      log(`${label} challenged "${challengeDecisions[i].word}" — ruled NOT VALID. +10 Bunce to ${label}!`);
     }else{
       validCount++;
       log(`${label} challenged "${challengeDecisions[i].word}" — ruled VALID. +10 Bunce to ${players[currentPlayerIdx].name}!`);
     }
-  });if(anyInvalid){log(`Play failed — ${players[currentPlayerIdx].name} picks up and replays.`);if(isCurrentPlayerAI())aiRejectedWords.add(pendingMainWord);cancelPlay();renderScores();return;}const bonus=validCount*10;scores[currentPlayerIdx]+=pendingScore+bonus;if(bonus>0)log(`Play stands! ${players[currentPlayerIdx].name} +${pendingScore} pts +${bonus} Bunce 🎉`);else log(`Play accepted — ${players[currentPlayerIdx].name} +${pendingScore} pts.`);finalizeTurn(currentPlayerIdx);renderScores();}
+  });if(anyInvalid){log(`Play failed — ${players[currentPlayerIdx].name} picks up and replays.`);if(isCurrentPlayerAI())aiRejectedWords.add(pendingMainWord);cancelPlay();renderScores();return;}const bonus=validCount*10;scores[currentPlayerIdx]+=pendingScore+bonus;if(bonus>0)log(`Play stands! ${players[currentPlayerIdx].name} ${fmtPts(pendingScore)} pts +${bonus} Bunce 🎉`);else log(`Play accepted — ${players[currentPlayerIdx].name} ${fmtPts(pendingScore)} pts.`);finalizeTurn(currentPlayerIdx);renderScores();}
 function onWrapInput(){wrapPivotIdx=null;wrapAddedIndices=[];renderWrapPreview();}
 function renderWrapPreview(){const wrapWord=document.getElementById("wrap-input").value.toUpperCase().trim();const preview=document.getElementById("wrap-preview");if(!wrapWord||!boardWord.length){preview.innerHTML='<span style="color:rgba(255,255,255,.3);font-size:13px;font-style:italic;">Type wrap word first</span>';return;}const prevWord=boardWord.join("");const wrapIdx=wrapWord.indexOf(prevWord);const added=new Set();if(wrapIdx>=0){for(let i=0;i<wrapWord.length;i++){if(i<wrapIdx||i>=wrapIdx+prevWord.length)added.add(i);}}else{for(let i=0;i<wrapWord.length;i++)added.add(i);}wrapAddedIndices=[...added];preview.innerHTML=wrapWord.split("").map((l,i)=>{const isAdded=added.has(i);const isPivot=wrapPivotIdx===i;const bg=isPivot?"rgba(245,166,35,.4)":isAdded?"rgba(255,255,255,.2)":"rgba(255,255,255,.05)";const border=isPivot?"#F5A623":isAdded?"white":"rgba(255,255,255,.3)";return `<div ${isAdded?`onclick="setWrapPivot(${i})"`:""} style="width:46px;height:54px;border-radius:7px;border:3px solid ${border};background:${bg};display:flex;align-items:center;justify-content:center;cursor:${isAdded?"pointer":"default"};font-family:Georgia,'Times New Roman',serif;font-size:26px;font-weight:700;color:white;transform:${isPivot?"translateY(-4px)":"none"};transition:transform .12s;opacity:${isAdded?1:.4};">${l}</div>`;}).join("");}
 function setWrapPivot(idx){if(!wrapAddedIndices.includes(idx))return;wrapPivotIdx=(wrapPivotIdx===idx)?null:idx;renderWrapPreview();}
@@ -1077,7 +1078,7 @@ function trow(cls,word,extra){return `<div class="trow">${word.split("").map(l=>
 function tlabel(t){return `<div class="tlabel">${t}</div>`;}
 // cells: [row, col, colourClass, letter, state]  state: "new" | "cross" | "dim" | ""
 function tgrid(cols,rows,cells){return `<div class="tg" style="--cols:${cols};--rows:${rows};--c:${cols<=6?42:28}px">${cells.map(([r,c,cls,l,st])=>`<div style="grid-row:${r};grid-column:${c}">${tcard(cls,l,st)}</div>`).join("")}</div>`;}
-function tkey(){return `<div class="tkey"><span><i class="k-new"></i>your cards</span><span><i class="k-cross"></i>table letter you use</span><span><i class="k-dim"></i>doesn't score</span></div>`;}
+function tkey(withCross=true){return `<div class="tkey"><span><i class="k-new"></i>your cards</span>${withCross?`<span><i class="k-cross"></i>table letter you use</span>`:""}<span><i class="k-dim"></i>doesn't score</span></div>`;}
 function twild(cls,l){return `<div class="twild">${tcard(cls,"*")}<span class="tbadge">${l}</span></div>`;}
 function tvals(){const g=[[10,"NRT",TP2],[8,"DHLS",TP2],[6,"BMP*",TP2],[5,"AEIOU",TP2],[4,"CFGW",TP2],[2,"JKVY",TP2],[1,"QXZ",TP2]]; // one complete deck (red)
   return `<div class="tvals">${g.map(([v,ls,cls])=>`<div class="tval-row"><span class="tval-n">${v}</span>${ls.split("").map(l=>tcard(cls,l,"sm")).join("")}</div>`).join("")}</div>`;}
@@ -1140,7 +1141,7 @@ const TUT_PAGES = [
     title:"Branch",
     body:"Tap <strong>Branch</strong>, choose <strong>end</strong> or <strong>start</strong>, and add <strong>one card</strong> there. The table word with that card added <strong>must still be a valid word</strong>. Then build a <strong>new word perpendicular</strong> to the table word, through that card. <strong>Only the perpendicular word scores</strong>, and it stays on the table.",
     demo:`${tgrid(6,3,[[1,1,TP1,"S","dim"],[1,2,TP1,"K","dim"],[1,3,TP1,"A","dim"],[1,4,TP1,"T","dim"],[1,5,TP1,"E","dim"],[1,6,TP2,"S","new"],[2,6,TP2,"U","new"],[3,6,TP2,"N","new"]])}
-      ${tkey()}
+      ${tkey(false)}
       <div class="tbox">1. Add an S to the end: SKATE → <strong>SKATES</strong> (still a valid word ✓).<br>
         2. Build <strong>SUN</strong> perpendicular, down from that S.<br>
         Score: S(8) + U(5) + N(10) = <span class="tpts">23</span>, minus the cards left in your hand. SKATE's letters don't score.<br>
@@ -1348,7 +1349,7 @@ function turnTimeUp(){
   // Same as tapping Can't play: hand discarded, lose its value, table word stays
   closeOpenPickers();recallWord();
   const pen=currentHand.reduce((s,c)=>s+c.value,0);scores[currentPlayerIdx]-=pen;
-  log(`⏱ Time's up! ${players[currentPlayerIdx].name} can't play — lost ${pen} pts.`);
+  log(`⏱ Time's up! ${players[currentPlayerIdx].name} can't play — hand discarded, lost ${pen} pts.`);
   toast(`⏱ Time's up! ${players[currentPlayerIdx].name} loses ${pen} pts`);
   pendingNewBoard=boardWord;pendingNewBoardCards=boardCards;pendingExtraWord="";
   finalizeTurn(currentPlayerIdx);renderScores();
